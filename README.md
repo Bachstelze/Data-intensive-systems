@@ -9,7 +9,7 @@ app_file: app.py
 pinned: false
 ---
 # Data-intensive-systems
-Group project to develop in a machine learning setting. The developed [gradio](https://www.gradio.app) app for movement assessment is automatically deployed to the [synchronized huggingface space](https://huggingface.co/spaces/Bachstelze/github_sync).
+Group project to develop in a machine learning setting. The developed [gradio](https://www.gradio.app) app for movement assessment is automatically deployed to the [synchronized huggingface space](https://huggingface.co/spaces/Bachstelze/pose-deep-learning).
 
 This is new repository for the deep learning part. The previous repo is still online: https://github.com/othmanreem/Data-intensive-systems
 
