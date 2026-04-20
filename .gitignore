@@ -1,0 +1,16 @@
+# Model files - upload manually to HuggingFace Spaces via web UI
+# HuggingFace rejects binary files via git push
+A3/models/*.pkl
+
+# images
+#score_board.png
+#A5b/models/adaboost_feature_importance.png
+
+# Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+A8/*.jpg

@@ -1,0 +1,13 @@
+# Ignore everything
+*
+
+# But not directories (so we can traverse into them)
+!*/
+
+# Allow Python files
+!*.py
+!**/*.py
+
+# Allow Jupyter notebooks
+!*.ipynb
+!**/*.ipynb
