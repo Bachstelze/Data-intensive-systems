@@ -70,4 +70,4 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          git push -f https://Bachstelze:$HF_TOKEN@huggingface.co/spaces/Bachstelze/github_sync main
+          git push -f https://Bachstelze:$HF_TOKEN@huggingface.co/spaces/Bachstelze/pose-deep-learning main
