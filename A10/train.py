@@ -599,6 +599,7 @@ def main():
     # Paths
     REPO_ROOT = Path(__file__).parent.parent
     KINECT_PATH = REPO_ROOT / 'kinect_good_preprocessed'
+    POSENET_PATH = REPO_ROOT / 'posenet_preprocessed'
     RESULTS_DIR = Path(__file__).parent / 'cv_results'
     MODELS_DIR = Path(__file__).parent / 'models'
     
@@ -611,13 +612,20 @@ def main():
         print("Please ensure the kinect_good_preprocessed folder exists.")
         return
     
+    use_real_posenet = POSENET_PATH.exists()
+    
     # Load data
     print(f"\nLoading data from: {KINECT_PATH}")
     print("Issue #40: PoseNet 2D (26) -> Kinect 2D (26)")
+    if use_real_posenet:
+        print(f"Using REAL PoseNet inputs from: {POSENET_PATH}")
+    else:
+        print("PoseNet folder not found; falling back to simulated PoseNet "
+              "input (Kinect xy + noise).")
     sequences, file_names = load_all_paired_sequences(
         str(KINECT_PATH),
-        posenet_folder=None,          # real PoseNet CSVs go here when available
-        simulate_posenet=True,        # synthesise PoseNet input for now
+        posenet_folder=str(POSENET_PATH) if use_real_posenet else None,
+        simulate_posenet=not use_real_posenet,
         noise_std=0.02,
     )
     print(f"Loaded {len(sequences)} paired sequences")
