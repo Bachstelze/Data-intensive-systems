@@ -14,3 +14,6 @@ __pycache__/
 # OS
 .DS_Store
 A8/*.jpg
+
+# HuggingFace Spaces rejects binary GIFs even via LFS; regenerate locally via visualizer.py
+A10/one_step_results/**/animations/*.gif
