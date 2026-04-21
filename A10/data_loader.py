@@ -78,9 +78,11 @@ def load_kinect_csv(filepath: Union[str, bytes]) -> Dict[str, np.ndarray]:
 
     Returns:
         Dict with:
-          'xy'  : (N, 26) Kinect x,y   (Issue #40 target)
-          'z'   : (N, 13) Kinect z
-          'xyz' : (N, 39) Kinect x,y,z (Issue #41 target)
+          'xy'     : (N, 26) Kinect x,y   (Issue #40 target)
+          'z'      : (N, 13) Kinect z
+          'xyz'    : (N, 39) Kinect x,y,z (Issue #41 target)
+          'frames' : (N,)    FrameNo values (int) if the column exists, else
+                     np.arange(N) as a fallback.
     """
     if isinstance(filepath, (str, os.PathLike)):
         df = pd.read_csv(filepath)
@@ -94,19 +96,34 @@ def load_kinect_csv(filepath: Union[str, bytes]) -> Dict[str, np.ndarray]:
         z_cols.append(f"{joint}_z")
         xyz_cols.extend([f"{joint}_x", f"{joint}_y", f"{joint}_z"])
 
+    if 'FrameNo' in df.columns:
+        frames = df['FrameNo'].values.astype(np.int64)
+    else:
+        frames = np.arange(len(df), dtype=np.int64)
+
     return {
         'xy':  df[xy_cols].values.astype(np.float32),
         'z':   df[z_cols].values.astype(np.float32),
         'xyz': df[xyz_cols].values.astype(np.float32),
+        'frames': frames,
     }
 
 
-def load_posenet_csv(filepath: str) -> np.ndarray:
+def load_posenet_csv(
+    filepath: str,
+    frame_filter: Optional[np.ndarray] = None,
+) -> np.ndarray:
     """
     Load a PoseNet/MoveNet CSV already aligned to Kinect joint order.
 
     Expected columns (per slide spec):
         FrameNo, head_x, head_y, left_shoulder_x, left_shoulder_y, ...
+
+    Args:
+        filepath: PoseNet CSV path.
+        frame_filter: Optional array of FrameNo values to select in order.
+            Used to temporally align PoseNet frames to the corresponding
+            Kinect frames (Kinect CSVs may start at FrameNo != 0).
 
     Returns:
         (N, 26) PoseNet x,y for 13 joints.
@@ -116,6 +133,17 @@ def load_posenet_csv(filepath: str) -> np.ndarray:
     xy_cols = []
     for joint in KINECT_JOINTS:
         xy_cols.extend([f"{joint}_x", f"{joint}_y"])
+
+    if frame_filter is not None and 'FrameNo' in df.columns:
+        df = df.set_index('FrameNo')
+        missing = [f for f in frame_filter if f not in df.index]
+        if missing:
+            raise ValueError(
+                f"{len(missing)} FrameNo(s) missing from {filepath} "
+                f"(first missing: {missing[:5]})"
+            )
+        df = df.loc[frame_filter]
+
     return df[xy_cols].values.astype(np.float32)
 
 
@@ -149,10 +177,8 @@ def load_paired_sequence(
     kinect = load_kinect_csv(kinect_path)
 
     if posenet_path is not None:
-        X = load_posenet_csv(posenet_path)
-        n = min(len(X), len(kinect['xy']))
-        X = X[:n]
-        kinect = {k: v[:n] for k, v in kinect.items()}
+        # Align PoseNet to Kinect by FrameNo when both CSVs carry that column.
+        X = load_posenet_csv(posenet_path, frame_filter=kinect['frames'])
     elif simulate_posenet:
         rng = np.random.default_rng(random_state)
         X = kinect['xy'] + rng.normal(0.0, noise_std, kinect['xy'].shape).astype(np.float32)
