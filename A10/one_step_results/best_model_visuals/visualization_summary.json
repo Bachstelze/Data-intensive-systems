@@ -1,0 +1,21 @@
+{
+  "bundle_dir": "one_step_results/best_model_visuals",
+  "n_frames": 125,
+  "has_ground_truth": true,
+  "outputs": {
+    "plots": [
+      "one_step_results/best_model_visuals/skeleton_plots/comparison_frame_0000.png",
+      "one_step_results/best_model_visuals/skeleton_plots/multiview_frame_0000.png",
+      "one_step_results/best_model_visuals/skeleton_plots/comparison_frame_0062.png",
+      "one_step_results/best_model_visuals/skeleton_plots/multiview_frame_0062.png",
+      "one_step_results/best_model_visuals/skeleton_plots/comparison_frame_0124.png",
+      "one_step_results/best_model_visuals/skeleton_plots/multiview_frame_0124.png"
+    ],
+    "animations": [
+      "one_step_results/best_model_visuals/animations/comparison_animation.gif"
+    ],
+    "interactive": [
+      "one_step_results/best_model_visuals/animations/interactive_viewer.html"
+    ]
+  }
+}
