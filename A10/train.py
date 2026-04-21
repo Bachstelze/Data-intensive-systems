@@ -27,7 +27,7 @@ from tensorflow import keras
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
 
 from data_loader import (
-    load_all_kinect_sequences,
+    load_all_paired_sequences,
     flatten_sequences,
     make_windowed_sequences,
     create_cv_splits,
@@ -35,7 +35,9 @@ from data_loader import (
     DataNormalizer,
     KINECT_JOINTS,
     N_INPUT,
+    N_OUTPUT_XY,
     N_OUTPUT_Z,
+    N_OUTPUT_XYZ,
 )
 from models import (
     build_dense_model,
@@ -184,7 +186,7 @@ def train_with_cv(
     epochs: int = 100,
     batch_size: int = 32,
     n_folds: int = 5,
-    output_type: str = 'z',
+    output_type: str = 'xy',
     normalize: bool = True,
     early_stopping_patience: int = 10,
     verbose: int = 1,
@@ -203,7 +205,7 @@ def train_with_cv(
         epochs: Maximum epochs
         batch_size: Batch size
         n_folds: Number of CV folds
-        output_type: 'z' or 'xyz'
+        output_type: 'xy' (Issue #40: 26 -> 26, default), 'z' or 'xyz'
         normalize: Whether to normalize data
         early_stopping_patience: Early stopping patience
         verbose: Verbosity level
@@ -212,7 +214,7 @@ def train_with_cv(
     Returns:
         Dictionary with CV results
     """
-    output_dim = N_OUTPUT_Z if output_type == 'z' else N_OUTPUT_Z * 3
+    output_dim = {'xy': N_OUTPUT_XY, 'z': N_OUTPUT_Z, 'xyz': N_OUTPUT_XYZ}[output_type]
     splits = create_cv_splits(sequences, n_folds=n_folds)
     
     fold_results = []
@@ -472,7 +474,7 @@ def train_final_model(
     epochs: int = 200,
     batch_size: int = 32,
     test_split: float = 0.2,
-    output_type: str = 'z',
+    output_type: str = 'xy',
     model_save_path: str = None,
     random_state: int = 42
 ) -> Tuple[keras.Model, Dict]:
@@ -488,14 +490,14 @@ def train_final_model(
         epochs: Training epochs
         batch_size: Batch size
         test_split: Fraction for test set
-        output_type: 'z' or 'xyz'
+        output_type: 'xy' (Issue #40 default), 'z', or 'xyz'
         model_save_path: Path to save trained model
         random_state: Random seed
         
     Returns:
         Tuple of (trained model, metrics dictionary)
     """
-    output_dim = N_OUTPUT_Z if output_type == 'z' else N_OUTPUT_Z * 3
+    output_dim = {'xy': N_OUTPUT_XY, 'z': N_OUTPUT_Z, 'xyz': N_OUTPUT_XYZ}[output_type]
     
     # Split sequences
     np.random.seed(random_state)
@@ -611,8 +613,14 @@ def main():
     
     # Load data
     print(f"\nLoading data from: {KINECT_PATH}")
-    sequences, file_names = load_all_kinect_sequences(str(KINECT_PATH))
-    print(f"Loaded {len(sequences)} sequences")
+    print("Issue #40: PoseNet 2D (26) -> Kinect 2D (26)")
+    sequences, file_names = load_all_paired_sequences(
+        str(KINECT_PATH),
+        posenet_folder=None,          # real PoseNet CSVs go here when available
+        simulate_posenet=True,        # synthesise PoseNet input for now
+        noise_std=0.02,
+    )
+    print(f"Loaded {len(sequences)} paired sequences")
     
     # Quick test with Dense model
     print("\n" + "=" * 60)

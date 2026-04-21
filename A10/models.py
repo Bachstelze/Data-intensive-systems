@@ -25,9 +25,13 @@ from tensorflow.keras import layers, regularizers, optimizers
 # =============================================================================
 
 N_JOINTS = 13                    # Number of Kinect joints
-N_INPUT = N_JOINTS * 2           # Input: 26 features (x, y per joint)
-N_OUTPUT_Z = N_JOINTS            # Output: 13 z-coordinates
-N_OUTPUT_XYZ = N_JOINTS * 3      # Output: 39 coordinates (full 3D)
+N_INPUT = N_JOINTS * 2           # Input: 26 features (PoseNet x,y per joint)
+N_OUTPUT_XY = N_JOINTS * 2       # Output: 26 features (Kinect x,y) -- Issue #40 PRIMARY
+N_OUTPUT_Z = N_JOINTS            # Output: 13 z-coordinates (legacy)
+N_OUTPUT_XYZ = N_JOINTS * 3      # Output: 39 coordinates (Issue #41 one-step variant)
+
+# Default output dimension follows Issue #40: 2D -> 2D (26 features)
+DEFAULT_OUTPUT_DIM = N_OUTPUT_XY
 
 DEFAULT_WINDOW_SIZE = 30         # Default sequence length for Conv1D/RNN
 
@@ -41,7 +45,7 @@ def build_dense_model(
     activation: str = 'relu',
     dropout_rate: float = 0.2,
     l2_reg: float = 1e-4,
-    output_dim: int = N_OUTPUT_Z,
+    output_dim: int = DEFAULT_OUTPUT_DIM,
     name: str = 'DenseModel'
 ) -> keras.Model:
     """
@@ -92,7 +96,7 @@ def build_conv1d_model(
     dense_units: Tuple[int, ...] = (64,),
     activation: str = 'relu',
     dropout_rate: float = 0.2,
-    output_dim: int = N_OUTPUT_Z,
+    output_dim: int = DEFAULT_OUTPUT_DIM,
     name: str = 'Conv1DModel'
 ) -> keras.Model:
     """
@@ -154,7 +158,7 @@ def build_lstm_model(
     activation: str = 'tanh',
     dropout_rate: float = 0.2,
     recurrent_dropout: float = 0.0,
-    output_dim: int = N_OUTPUT_Z,
+    output_dim: int = DEFAULT_OUTPUT_DIM,
     name: str = 'LSTMModel'
 ) -> keras.Model:
     """
@@ -211,7 +215,7 @@ def build_gru_model(
     dense_units: Tuple[int, ...] = (32,),
     dropout_rate: float = 0.2,
     recurrent_dropout: float = 0.0,
-    output_dim: int = N_OUTPUT_Z,
+    output_dim: int = DEFAULT_OUTPUT_DIM,
     name: str = 'GRUModel'
 ) -> keras.Model:
     """
@@ -272,7 +276,7 @@ MODEL_BUILDERS = {
 def create_model(
     model_type: str,
     config: Dict,
-    output_dim: int = N_OUTPUT_Z
+    output_dim: int = DEFAULT_OUTPUT_DIM
 ) -> keras.Model:
     """
     Factory function to create models by type and configuration.
@@ -395,7 +399,7 @@ def build_model_from_params(
     n_units: int,
     dropout_rate: float = 0.2,
     window_size: int = 30,
-    output_dim: int = N_OUTPUT_Z
+    output_dim: int = DEFAULT_OUTPUT_DIM
 ) -> keras.Model:
     """
     Build a model from simplified hyperparameters.
