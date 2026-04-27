@@ -1,0 +1,40 @@
+[
+  {
+    "file_id": "A100_kinect",
+    "modality": "A",
+    "input_path": "A11_kinect_good_preprocessed_not_cut/A100_kinect.csv",
+    "output_cut_path": "/Users/reemothman/Downloads/DIS/Data-intensive-systems/A11/cut_sequences/A/A100_kinect_A_cut.csv",
+    "pred_start_frame": 85,
+    "pred_stop_frame": 90,
+    "pred_start_probability": 0.04966837699924197,
+    "pred_stop_probability": 6.0083817905771345e-06,
+    "true_start_frame": null,
+    "true_stop_frame": null,
+    "start_offset": null,
+    "stop_offset": null,
+    "cut_length_frames": 6,
+    "probability_plot": "/Users/reemothman/Downloads/DIS/Data-intensive-systems/A11/plots/A/A100_kinect_A_probabilities.png",
+    "trajectory_plot": "/Users/reemothman/Downloads/DIS/Data-intensive-systems/A11/plots/A/A100_kinect_A_trajectories.png",
+    "animation": "/Users/reemothman/Downloads/DIS/Data-intensive-systems/A11/animations/A/A100_kinect_A_cut.gif",
+    "side_by_side_animation": "/Users/reemothman/Downloads/DIS/Data-intensive-systems/A11/animations/A/A100_kinect_A_side_by_side.gif"
+  },
+  {
+    "file_id": "A100_kinect",
+    "modality": "B",
+    "input_path": "A11_kinect_good_preprocessed_not_cut/A100_kinect.csv",
+    "output_cut_path": "/Users/reemothman/Downloads/DIS/Data-intensive-systems/A11/cut_sequences/B/A100_kinect_B_cut.csv",
+    "pred_start_frame": 84,
+    "pred_stop_frame": 154,
+    "pred_start_probability": 0.3047200100762503,
+    "pred_stop_probability": 0.01250459220526474,
+    "true_start_frame": null,
+    "true_stop_frame": null,
+    "start_offset": null,
+    "stop_offset": null,
+    "cut_length_frames": 71,
+    "probability_plot": "/Users/reemothman/Downloads/DIS/Data-intensive-systems/A11/plots/B/A100_kinect_B_probabilities.png",
+    "trajectory_plot": "/Users/reemothman/Downloads/DIS/Data-intensive-systems/A11/plots/B/A100_kinect_B_trajectories.png",
+    "animation": "/Users/reemothman/Downloads/DIS/Data-intensive-systems/A11/animations/B/A100_kinect_B_cut.gif",
+    "side_by_side_animation": "/Users/reemothman/Downloads/DIS/Data-intensive-systems/A11/animations/B/A100_kinect_B_side_by_side.gif"
+  }
+]
