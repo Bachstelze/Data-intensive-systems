@@ -1,0 +1,73 @@
+======================================================================
+CLASSIFICATION DATA ANALYSIS REPORT
+======================================================================
+
+
+======================================================================
+Dataset: combined_classification_data
+======================================================================
+
+Total rows: 62032
+Total outliers: 34291
+Outlier percentage: 55.28%
+
+Outliers by type:
+  total_outliers: 34291
+  position_outliers: 3583
+  velocity_outliers: 4871
+  acceleration_outliers: 4195
+  speed_outliers: 2298
+  distance_outliers: 0
+  label_issues_outliers: 10
+  missing_data_outliers: 28627
+
+Label distribution:
+  neutral: 61061 (98.4%)
+  start: 550 (0.9%)
+  stop: 421 (0.7%)
+
+======================================================================
+Dataset: cut_classification_data
+======================================================================
+
+Total rows: 24005
+Total outliers: 14120
+Outlier percentage: 58.82%
+
+Outliers by type:
+  total_outliers: 14120
+  position_outliers: 2275
+  velocity_outliers: 1643
+  acceleration_outliers: 2922
+  speed_outliers: 300
+  distance_outliers: 0
+  label_issues_outliers: 0
+  missing_data_outliers: 10631
+
+Label distribution:
+  neutral: 23945 (99.8%)
+  start: 34 (0.1%)
+  stop: 26 (0.1%)
+
+======================================================================
+Dataset: not_cut_classification_data
+======================================================================
+
+Total rows: 38027
+Total outliers: 22042
+Outlier percentage: 57.96%
+
+Outliers by type:
+  total_outliers: 22042
+  position_outliers: 2615
+  velocity_outliers: 3883
+  acceleration_outliers: 2835
+  speed_outliers: 1672
+  distance_outliers: 0
+  label_issues_outliers: 10
+  missing_data_outliers: 17996
+
+Label distribution:
+  neutral: 37116 (97.6%)
+  start: 516 (1.4%)
+  stop: 395 (1.0%)
