@@ -70,4 +70,5 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
+          git lfs fetch --all origin
           git push -f https://Bachstelze:$HF_TOKEN@huggingface.co/spaces/Bachstelze/pose-deep-learning main
