@@ -1,6 +1,7 @@
 from PIL import Image
 import gradio as gr
 from A8.pose_estimator import MoveNetPoseEstimator
+from A12.pose_interpolator import smooth_pose_sequence
 import json
 import csv
 import os
@@ -211,6 +212,8 @@ def process_and_display(image: Image.Image, confidence_threshold: float = 0.3) -
 def process_webcam_video(
     video_path: str,
     confidence_threshold: float = 0.3,
+    smoothing_strategy: str = "exponential",
+    smoothing_method: str = "zscore",
     progress=gr.Progress()
 ) -> tuple:
     """Process uploaded video with pose estimation."""
@@ -292,13 +295,28 @@ def process_webcam_video(
 
     print(f"Total frames processed: {frame_count}")
 
-    # Save keypoints to CSV
+    # Apply smoothing to the keypoints
+    try:
+        smoothed_keypoints = smooth_pose_sequence(
+            all_keypoints,
+            strategy=smoothing_strategy,
+            outlier_method=smoothing_method,
+            outlier_threshold=3.0,
+            window_size=7,
+            min_confidence=0.2,
+        )
+    except Exception as e:
+        print(f"Error applying smoothing: {e}")
+        # Fallback to original keypoints if smoothing fails
+        smoothed_keypoints = all_keypoints
+
+    # Save smoothed keypoints to CSV
     csv_path = os.path.join("pose_outputs", f"video_keypoints_{timestamp}.csv")
     with open(csv_path, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(["Frame_ID", "Joint", "X", "Y", "Confidence", "Visible"])
 
-        for frame_data in all_keypoints:
+        for frame_data in smoothed_keypoints:
             frame_id = frame_data.get('frame_id', 0)
             for kp in frame_data['poses'][0]['keypoints']:
                 x = kp.get('x')
@@ -374,6 +392,16 @@ with gr.Blocks(title="MoveNet Pose Estimation") as demo:
                         step=0.05,
                         label="Confidence Threshold"
                     )
+                    smoothing_strategy = gr.Dropdown(
+                        choices=["exponential", "moving_average", "gaussian", "median", "savitzky_golay", "kalman", "spline", "hybrid"],
+                        value="exponential",
+                        label="Smoothing Strategy"
+                    )
+                    smoothing_method = gr.Dropdown(
+                        choices=["zscore", "velocity", "none"],
+                        value="zscore",
+                        label="Outlier Detection Method"
+                    )
                     process_video_btn = gr.Button("🎬 Process Video", variant="primary")
 
                 with gr.Column():
@@ -383,7 +411,7 @@ with gr.Blocks(title="MoveNet Pose Estimation") as demo:
 
             process_video_btn.click(
                 fn=process_webcam_video,
-                inputs=[video_input, video_confidence],
+                inputs=[video_input, video_confidence, smoothing_strategy, smoothing_method],
                 outputs=[video_output, video_result]
             )
 
