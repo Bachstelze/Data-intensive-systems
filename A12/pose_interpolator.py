@@ -69,6 +69,8 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 
+import pandas as pd
+
 # ---------------------------------------------------------------------------
 # Try importing scipy – it is a transitive dependency of statsmodels /
 # scikit-learn (both in requirements.txt), but we guard in case it is
@@ -515,7 +517,6 @@ class PoseInterpolator:
         A11 visualisation tools (columns ``<joint>_x``, ``<joint>_y``,
         optionally ``<joint>_z`` and a ``FrameNo`` column).
         """
-        import pandas as pd
 
         if joint_names is None:
             joint_names = COCO_KEYPOINTS
