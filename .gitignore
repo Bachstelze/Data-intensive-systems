@@ -20,3 +20,5 @@ A10/one_step_results/**/animations/*.gif
 
 # Large generated classification dataset (>10 MiB; HuggingFace push limit). Regenerate via A11/prepare_classification_data.py
 A11/classification_data/not_cut_classification_data.csv
+.venv/
+venv/

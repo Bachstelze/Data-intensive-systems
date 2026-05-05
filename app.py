@@ -2,6 +2,7 @@ from PIL import Image
 import gradio as gr
 from A8.pose_estimator import MoveNetPoseEstimator
 from A12.pose_interpolator import smooth_pose_sequence
+from A12.service.ui import run_a12_tab
 import json
 import csv
 import os
@@ -413,6 +414,45 @@ with gr.Blocks(title="MoveNet Pose Estimation") as demo:
                 fn=process_webcam_video,
                 inputs=[video_input, video_confidence, smoothing_strategy, smoothing_method],
                 outputs=[video_output, video_result]
+            )
+
+
+
+        # A12 Classifier Tab
+        with gr.TabItem("🧪 A12 Classifier"):
+            gr.Markdown(
+                """
+                ### A12 Service Endpoint: Pose CSV classifier
+
+                Endpoint alternative chosen: **Gradio tab inside the existing app**.
+                This keeps the HuggingFace Space architecture simple and avoids a
+                separate REST/FastAPI service. Upload a pose-feature CSV exported
+                with the same feature schema used by the A12 classifier.
+                """
+            )
+            with gr.Row():
+                with gr.Column():
+                    a12_csv_input = gr.File(
+                        label="Pose feature CSV",
+                        file_types=[".csv"],
+                        type="filepath",
+                    )
+                    a12_problem_input = gr.Radio(
+                        choices=["A", "B"],
+                        value="B",
+                        label="Classifier problem",
+                        info="A = Kinect 3D features, B = PoseNet 2D features",
+                    )
+                    a12_predict_btn = gr.Button("Run A12 classifier", variant="primary")
+
+                with gr.Column():
+                    a12_summary_output = gr.Markdown(label="Summary")
+                    a12_json_output = gr.JSON(label="Structured JSON output")
+
+            a12_predict_btn.click(
+                fn=run_a12_tab,
+                inputs=[a12_csv_input, a12_problem_input],
+                outputs=[a12_json_output, a12_summary_output],
             )
 
     # Example section
