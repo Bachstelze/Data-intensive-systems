@@ -53,8 +53,8 @@ EXTRA_COLS = [
     'right_hand_ax', 'right_hand_ay', 'right_hand_az',  'right_hand_accel',
 ]
 
-SEGMENT_FEATURE_COLS = KINECT_3D_COLS + EXTRA_COLS 
-WINDOW_SIZE = 30    
+SEGMENT_FEATURE_COLS = KINECT_3D_COLS + EXTRA_COLS
+WINDOW_SIZE = 30
 CONFIDENCE_THRESHOLD = 0.75
 
 
@@ -152,7 +152,7 @@ class ExercisePipeline:
 
             class PatchedDense(layers.Dense):
                 def __init__(self, *args, **kwargs):
-                    kwargs.pop('quantization_config', None)  
+                    kwargs.pop('quantization_config', None)
                     super().__init__(*args, **kwargs)
 
             model = tf.keras.models.load_model(
@@ -184,13 +184,14 @@ class ExercisePipeline:
                 model_segment='week17_start_and_stop.h5',
                 scaler_segment='week17_start_and_stop.pkl',
                 scaler_onestep_X='week16_scaler_X.pkl',
-                scaler_onestep_y='week16_scaler_y.pkl'):
+                scaler_onestep_y='week16_scaler_y.pkl',
+                cut_aggressiveness=0.5):
 
         print("=" * 55)
         print("Initialising Exercise Pipeline")
         print("=" * 55)
 
-        # Step 1: MoveNet 
+        # Step 1: MoveNet
         print("\n[1] Loading MoveNet pose estimator...")
         try:
             sys.path.insert(0, str(Path(__file__).parent))
@@ -201,10 +202,10 @@ class ExercisePipeline:
             print(f"    ERROR: {e}")
             raise
 
-        # Step 2: PoseNet→Kinect2D  
+        # Step 2: PoseNet→Kinect2D
         print(f"\n[2] Loading PoseNet→Kinect2D: {model_posenet_to_k2d}")
-        self.model_p2k = self._load_model_safe(MODELS_DIR /model_posenet_to_k2d)  
-        
+        self.model_p2k = self._load_model_safe(MODELS_DIR /model_posenet_to_k2d)
+
         try:
             self.scaler_onestep_X = joblib.load(MODELS_DIR /scaler_onestep_X)
             self.scaler_onestep_y = joblib.load(MODELS_DIR /scaler_onestep_y)
@@ -221,20 +222,22 @@ class ExercisePipeline:
         elif self.p2k_output_dim == 26:
             print(f"    Two-step model detected — model_3d needed for z prediction")
 
-        # Step 3: Kinect2D→3D  
+        # Step 3: Kinect2D→3D
         print(f"\n[3] Loading Kinect2D→3D: {model_k2d_to_k3d}")
-        self.model_3d = self._load_model_safe(MODELS_DIR /model_k2d_to_k3d)  
+        self.model_3d = self._load_model_safe(MODELS_DIR /model_k2d_to_k3d)
         print(f"    Input: {self.model_3d.input_shape}  "
             f"Output: {self.model_3d.output_shape}")
 
-        # Step 4: Start/Stop classifier  
+        # Step 4: Start/Stop classifier
         print(f"\n[4] Loading Start/Stop classifier: {model_segment}")
-        self.model_segment = self._load_model_safe(MODELS_DIR /model_segment)  
+        self.model_segment = self._load_model_safe(MODELS_DIR /model_segment)
         self.scaler_segment = joblib.load(MODELS_DIR / scaler_segment)
         self.segment_is_seq = len(self.model_segment.input_shape) == 3
         print(f"    Sequence model: {self.segment_is_seq}")
 
         self.quality_enabled = False
+        self.cut_aggressiveness = cut_aggressiveness
+        print(f"    Cut aggressiveness: {self.cut_aggressiveness}")
 
     def _extract_posenet_coords(self, frame):
         result = self.pose_estimator.detect_pose(frame)
@@ -250,7 +253,7 @@ class ExercisePipeline:
 
 
     def _predict_kinect_2d(self, posenet_coords):
-        
+
         X = posenet_coords.reshape(1, -1)
 
         # 2. Apply Input Scaling (PoseNet 2D)
@@ -258,12 +261,12 @@ class ExercisePipeline:
             X_scaled = self.scaler_onestep_X.transform(X)
         else:
             # Fallback if scaler missing
-            X_scaled = X - 0.5 
+            X_scaled = X - 0.5
 
         # 3. Run the model (Prediction)
         output_scaled = self.model_p2k.predict(X_scaled, verbose=0)
 
-        # 4. Apply Output Un-scaling 
+        # 4. Apply Output Un-scaling
         if self.scaler_onestep_y is not None:
             output = self.scaler_onestep_y.inverse_transform(output_scaled)
         else:
@@ -329,139 +332,80 @@ class ExercisePipeline:
         print(f"  Predictions: {predictions.sum()} exercise frames "
             f"out of {n_frames} total")
 
-        # Find start: first 0→1 transition
-        start_frame = None
+        # ------------------------------------------------------------------
+        # Find all 0→1 transitions (candidate starts) and 1→0 transitions
+        # (candidate stops), then score every (start, stop) pair by how many
+        # non-exercise frames surround it.  Pick the pair with the best score.
+        # cut_aggressiveness gives a bonus to longer exercise segments.
+        # ------------------------------------------------------------------
+        cand_starts = []
+        cand_stops  = []
         for i in range(1, len(predictions)):
             if predictions[i-1] == 0 and predictions[i] == 1:
-                start_frame = i
-                break
-
-        # Find stop: last 1→0 transition
-        stop_frame = None
-        for i in range(len(predictions)-1, 0, -1):
+                cand_starts.append(i)
             if predictions[i-1] == 1 and predictions[i] == 0:
-                stop_frame = i
-                break
+                cand_stops.append(i)
 
-        # Fallback if no clean transition found
-        if start_frame is None and predictions.sum() > 0:
-            start_frame = int(np.where(predictions == 1)[0][0])
-        if stop_frame is None and predictions.sum() > 0:
-            stop_frame  = int(np.where(predictions == 1)[0][-1])
+        best_start = None
+        best_stop  = None
+        best_score = -1.0
+
+        if cand_starts and cand_stops:
+            agg = self.cut_aggressiveness
+            for s in cand_starts:
+                for e in cand_stops:
+                    if e <= s:
+                        continue
+
+                    # Frames before the start (non-exercise leading margin)
+                    leading_non_ex  = s
+                    # Frames after the stop  (non-exercise trailing margin)
+                    trailing_non_ex = n_frames - e - 1
+
+                    # Penalty for exercise frames mixed into the margins
+                    leading_exercise  = predictions[:s].sum()
+                    trailing_exercise = predictions[e+1:].sum()
+
+                    # Base score: how much pure non-exercise surrounds us
+                    base = (leading_non_ex - leading_exercise) + \
+                           (trailing_non_ex - trailing_exercise)
+
+                    # Aggressiveness bonus: prefer longer continuous exercise
+                    # segments when cut_aggressiveness > 0
+                    segment_len = e - s + 1
+                    aggressiveness_bonus = agg * segment_len
+
+                    score = base + aggressiveness_bonus
+
+                    if score > best_score:
+                        best_score = score
+                        best_start = s
+                        best_stop  = e
+
+        else:
+            # No clean transitions at all — fall back to first/last exercise
+            # frame
+            one_idxs = np.where(predictions == 1)[0]
+            if len(one_idxs) > 0:
+                best_start = int(one_idxs[0])
+                best_stop  = int(one_idxs[-1])
+
+        # Absolute fallback if we still have nothing
+        if best_start is None and predictions.sum() > 0:
+            best_start = int(np.where(predictions == 1)[0][0])
+        if best_stop is None and predictions.sum() > 0:
+            best_stop  = int(np.where(predictions == 1)[0][-1])
 
         # Safety bounds
-        if start_frame is not None:
-            start_frame = max(0, start_frame)
-        if stop_frame is not None:
-            stop_frame  = min(n_frames - 1, stop_frame)
+        if best_start is not None:
+            best_start = max(0, best_start)
+        if best_stop is not None:
+            best_stop  = min(n_frames - 1, best_stop)
 
-        return start_frame, stop_frame, predictions
-
-
-    # def _create_annotated_video(self, video_path, start_frame, stop_frame,
-    #                          df_cut, output_path):
-    #     """
-    #     Create trimmed annotated video with skeleton overlay.
-    #     Draws joint circles and skeleton lines on each exercise frame.
-        
-    #     df_cut: DataFrame with 3D skeleton for exercise frames only
-    #     """
-    #     cap    = cv2.VideoCapture(str(video_path))
-    #     fps    = cap.get(cv2.CAP_PROP_FPS) or 30.0
-    #     width  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    #     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-
-    #     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    #     out    = cv2.VideoWriter(str(output_path), fourcc, fps, (width, height))
-
-        
-
-    #     # Skeleton connections — which joints to draw lines between
-    #     SKELETON_CONNECTIONS = [
-    #         ('head',           'left_shoulder'),
-    #         ('head',           'right_shoulder'),
-    #         ('left_shoulder',  'right_shoulder'),
-    #         ('left_shoulder',  'left_elbow'),
-    #         ('left_elbow',     'left_hand'),
-    #         ('right_shoulder', 'right_elbow'),
-    #         ('right_elbow',    'right_hand'),
-    #         ('left_shoulder',  'left_hip'),
-    #         ('right_shoulder', 'right_hip'),
-    #         ('left_hip',       'right_hip'),
-    #         ('left_hip',       'left_knee'),
-    #         ('left_knee',      'left_foot'),
-    #         ('right_hip',      'right_knee'),
-    #         ('right_knee',     'right_foot'),
-    #     ]
-
-    #     frame_idx    = 0
-    #     cut_frame_idx = 0   # index into df_cut
-
-    #     while cap.isOpened():
-    #         ret, frame = cap.read()
-    #         if not ret:
-    #             break
-
-    #         # Only process and write exercise frames
-    #         if start_frame <= frame_idx <= stop_frame:
-
-    #             # Get 3D skeleton for this frame
-    #             if cut_frame_idx < len(df_cut):
-    #                 row = df_cut.iloc[cut_frame_idx]
-    #                 joint_pixels = {}
-    #                 for joint in JOINTS:
-    #                     x_3d = row[f'{joint}_x']   # Kinect metres (-1 to 1)
-    #                     y_3d = row[f'{joint}_y']   # Kinect metres (-1 to 1)
-
-    #                     px = int((x_3d + 1.0) / 2.0 * width)
-    #                     py = int((1.0 - (y_3d + 1.0) / 2.0) * height)
-
-    #                     # Clamp to image bounds
-    #                     px = max(0, min(width-1,  px))
-    #                     py = max(0, min(height-1, py))
-
-    #                     joint_pixels[joint] = (px, py)
-
-    #                 # Draw skeleton lines
-    #                 for joint_a, joint_b in SKELETON_CONNECTIONS:
-    #                     if joint_a in joint_pixels and joint_b in joint_pixels:
-    #                         cv2.line(frame,
-    #                                 joint_pixels[joint_a],
-    #                                 joint_pixels[joint_b],
-    #                                 (0, 255, 0), 2)   # green lines
-
-    #                 # Draw joint circles
-    #                 for joint, (px, py) in joint_pixels.items():
-    #                     cv2.circle(frame, (px, py), 5,
-    #                             (0, 255, 255), -1)  # yellow filled
-    #                     cv2.circle(frame, (px, py), 5,
-    #                             (0, 0, 0), 1)        # black border
-
-    #                 cut_frame_idx += 1
-
-    #             # Draw text overlay
-    #             cv2.putText(frame,
-    #                         f"EXERCISE  frame {frame_idx}",
-    #                         (20, 40), cv2.FONT_HERSHEY_SIMPLEX,
-    #                         1.0, (0, 255, 0), 2)
-    #             cv2.putText(frame,
-    #                         f"start={start_frame}  stop={stop_frame}",
-    #                         (20, 80), cv2.FONT_HERSHEY_SIMPLEX,
-    #                         0.7, (0, 255, 0), 2)
-
-    #             out.write(frame)
-
-    #         frame_idx += 1
-
-    #     cap.release()
-    #     out.release()
-    #     print(f"  Annotated video saved: {output_path.name}")
-
-
-    #  MAIN ENTRY POINT 
+        return best_start, best_stop, predictions
 
     def process_video(self, video_path):
-        window_buffer = [] 
+        window_buffer = []
         video_path = Path(video_path)
         if not video_path.exists():
             print(f"ERROR: Video not found: {video_path}")
@@ -563,7 +507,7 @@ class ExercisePipeline:
         df_3d.to_csv(str(full_csv))
         print(f"\n  Saved full 3D points: {full_csv.name}  ({len(df_3d)} frames)")
 
-        # STAGE 4: Find exercise segment 
+        # STAGE 4: Find exercise segment
         print("\nStage 4: Detecting exercise start and stop...")
         start_frame, stop_frame, predictions = self._predict_exercise_segment(df_3d)
 
@@ -635,7 +579,7 @@ class ExercisePipeline:
         return results
 
 
-# CLI entry point 
+# CLI entry point
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -650,6 +594,11 @@ if __name__ == "__main__":
                         help='Start/Stop classifier (Lab 11)')
     parser.add_argument('--scaler_seg',   default='week17_start_and_stop.pkl',
                         help='Scaler for Lab 11 model')
+    parser.add_argument('--cut_aggressiveness', type=float, default=0.5,
+                        help='Bias towards longer exercise segments. '
+                             'Higher values produce wider cuts, lower '
+                             'values prefer segments with cleaner non-'
+                             'exercise surroundings. (default: 0.5)')
     args = parser.parse_args()
 
     pipeline = ExercisePipeline(
@@ -657,5 +606,6 @@ if __name__ == "__main__":
         model_k2d_to_k3d=args.model_3d,
         model_segment=args.model_seg,
         scaler_segment=args.scaler_seg,
+        cut_aggressiveness=args.cut_aggressiveness,
     )
     pipeline.process_video(args.video)
