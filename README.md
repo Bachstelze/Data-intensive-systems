@@ -53,6 +53,7 @@ Run the app with ```python3 app.py```
 - git lfs track "*.mp4"
 - git add .gitattributes
 - git commit -m "add offending file type to lfs"
+- git push --force
 
 
 ### Outlook
