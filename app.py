@@ -3,7 +3,6 @@ import gradio as gr
 from A8.pose_estimator import MoveNetPoseEstimator
 from A12.pose_interpolator import smooth_pose_sequence
 from A12.service.ui import run_a12_tab
-from A12.service.ui import run_a12_video_tab
 import json
 import csv
 import os
@@ -417,73 +416,43 @@ with gr.Blocks(title="MoveNet Pose Estimation") as demo:
                 outputs=[video_output, video_result]
             )
 
-        # A12 Video Pipeline Tab
-        with gr.TabItem("🧪 A12 Video Pipeline"):
+
+
+        # A12 Classifier Tab
+        with gr.TabItem("🧪 A12 Classifier"):
             gr.Markdown(
                 """
-                ### Issue #12: App development and pipeline integration
+                ### A12 Service Endpoint: Pose CSV classifier
 
-                Endpoint alternative chosen: **Gradio tab inside the existing app.py**.
-
-                **Input:** one video file.  
-                **Output:** annotated cut 2D video, 3D-animation data JSON, keypoints CSV,
-                and good/bad classification JSON.
+                Endpoint alternative chosen: **Gradio tab inside the existing app**.
+                This keeps the HuggingFace Space architecture simple and avoids a
+                separate REST/FastAPI service. Upload a pose-feature CSV exported
+                with the same feature schema used by the A12 classifier.
                 """
             )
-
             with gr.Row():
                 with gr.Column():
-                    a12_video_input = gr.Video(label="Input exercise video")
-                    a12_confidence = gr.Slider(
-                        minimum=0.0,
-                        maximum=1.0,
-                        value=0.3,
-                        step=0.05,
-                        label="Confidence threshold"
+                    a12_csv_input = gr.File(
+                        label="Pose feature CSV",
+                        file_types=[".csv"],
+                        type="filepath",
                     )
-                    a12_smoothing_strategy = gr.Dropdown(
-                        choices=[
-                            "exponential",
-                            "moving_average",
-                            "gaussian",
-                            "median",
-                            "savitzky_golay",
-                            "kalman",
-                            "spline",
-                            "hybrid"
-                        ],
-                        value="exponential",
-                        label="Smoothing strategy",
+                    a12_problem_input = gr.Radio(
+                        choices=["A", "B"],
+                        value="B",
+                        label="Classifier problem",
+                        info="A = Kinect 3D features, B = PoseNet 2D features",
                     )
-                    a12_smoothing_method = gr.Dropdown(
-                        choices=["zscore", "velocity", "none"],
-                        value="zscore",
-                        label="Outlier detection method",
-                    )
-                    a12_run_btn = gr.Button("Run A12 pipeline", variant="primary")
+                    a12_predict_btn = gr.Button("Run A12 classifier", variant="primary")
 
                 with gr.Column():
-                    a12_video_output = gr.Video(label="Annotated cut 2D video")
-                    a12_animation_file = gr.File(label="3D animation data JSON")
-                    a12_keypoints_file = gr.File(label="Cut keypoints CSV")
-                    a12_json_output = gr.JSON(label="Structured output")
-                    a12_summary = gr.Markdown()
+                    a12_summary_output = gr.Markdown(label="Summary")
+                    a12_json_output = gr.JSON(label="Structured JSON output")
 
-            a12_run_btn.click(
-                fn=run_a12_video_tab,
-                inputs=[
-                    a12_video_input,
-                    a12_confidence,
-                    a12_smoothing_strategy,
-                    a12_smoothing_method
-                ],
-                outputs=[
-                    a12_video_output,
-                    a12_animation_file,
-                    a12_keypoints_file,
-                    a12_json_output,
-                    a12_summary
-                ],
+            a12_predict_btn.click(
+                fn=run_a12_tab,
+                inputs=[a12_csv_input, a12_problem_input],
+                outputs=[a12_json_output, a12_summary_output],
             )
 
     # Example section

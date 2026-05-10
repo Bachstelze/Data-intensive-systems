@@ -1,4 +1,6 @@
-from .pipeline import run_video_pipeline, validate_video
-from .ui import run_a12_video_tab
+"""A12 service endpoint package."""
 
-__all__ = ["run_video_pipeline", "validate_video", "run_a12_video_tab"]
+from A12.service.model_service import predict_pose_csv, safe_predict_pose_csv
+from A12.service.ui import run_a12_tab
+
+__all__ = ["predict_pose_csv", "safe_predict_pose_csv", "run_a12_tab"]
