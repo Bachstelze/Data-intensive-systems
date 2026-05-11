@@ -235,9 +235,64 @@ class ExercisePipeline:
         self.segment_is_seq = len(self.model_segment.input_shape) == 3
         print(f"    Sequence model: {self.segment_is_seq}")
 
-        self.quality_enabled = False
+        print(f"\n[5] Loading quality classifier")
+        try:
+            self.model_quality = tf.keras.models.load_model(
+                MODELS_DIR / 'A_CNN.keras')
+            self.quality_enabled = True
+            print(f"    Quality model loaded")
+            print(f"    Input: {self.model_quality.input_shape}")
+        except Exception as e:
+            print(f"    Quality model not found: {e}")
+            self.model_quality = None
+            self.quality_enabled = False
+
         self.cut_aggressiveness = cut_aggressiveness
         print(f"    Cut aggressiveness: {self.cut_aggressiveness}")
+
+
+    def _prepare_quality_input(self, df_cut):
+        # Sample 10 equidistant frame indices
+        n_frames = len(df_cut)
+        indices  = np.linspace(0, n_frames - 1, 10).astype(int)
+        sampled  = df_cut.iloc[indices]
+
+        # Extract x,y,z for all 13 joints
+        JOINTS_ORDER = [
+            'head', 'left_shoulder', 'left_elbow', 'right_shoulder',
+            'right_elbow', 'left_hand', 'right_hand', 'left_hip',
+            'right_hip', 'left_knee', 'right_knee', 'left_foot', 'right_foot'
+        ]
+
+        frames = []
+        for _, row in sampled.iterrows():
+            joint_data = []
+            for joint in JOINTS_ORDER:
+                joint_data.append([
+                    row[f'{joint}_x'],
+                    row[f'{joint}_y'],
+                    row[f'{joint}_z']
+                ])
+            frames.append(joint_data)
+
+        arr = np.array(frames, dtype=np.float32) 
+
+        return arr.reshape(1, 10, 13, 3)
+    
+    def _predict_quality(self, df_cut):
+        if not self.quality_enabled or self.model_quality is None:
+            return 'Not availabel', 0.0
+
+        X = self._prepare_quality_input(df_cut)
+        proba = self.model_quality.predict(X, verbose=0)
+
+        p_good = float(proba[0][0])
+
+        label      = 'GOOD' if p_good >= 0.5 else 'BAD'
+        confidence = p_good if p_good >= 0.5 else 1 - p_good
+
+        return label, confidence
+
 
     def _extract_posenet_coords(self, frame):
         result = self.pose_estimator.detect_pose(frame)
@@ -539,6 +594,10 @@ class ExercisePipeline:
         except Exception as e:
             print(f"  Skeleton animation skipped: {e}")
 
+        print("\nStage 5: Classifying exercise quality (Good/Bad)")
+        quality_label, quality_confidence = self._predict_quality(df_cut)
+        print(f"  Quality: {quality_label} (confidence: {quality_confidence:.1%})")
+
         # Save results JSON
         results = {
             "video":         video_path.name,
@@ -547,8 +606,8 @@ class ExercisePipeline:
             "stop_frame":    int(stop_frame)  if stop_frame  is not None else None,
             "exercise_frames": int(stop_frame - start_frame + 1),
             "exercise_duration_sec": round((stop_frame - start_frame + 1) / 30.0, 2),
-            "quality_label": "(A13 not ready)",
-            "pipeline_version": "A8-A12"
+            "quality_label": quality_label,
+            "pipeline_version": "A8-A13 finsihed"
         }
         json_path = out_dir / f"{stem}_results.json"
         with open(str(json_path), 'w') as f:
@@ -574,7 +633,6 @@ class ExercisePipeline:
         print(f"    {full_csv.name}      ← all 3D skeleton data")
         print(f"    {cut_csv.name}  ← exercise-only 3D data")
         print(f"    {json_path.name}      ← start/stop metadata")
-        print(f"\n  A13 results wait")
 
         return results
 
@@ -583,17 +641,17 @@ class ExercisePipeline:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description='Exercise pipeline A8-A12')
+        description='Exercise pipeline')
     parser.add_argument('--video',        required=True,
                         help='Path to input video file')
     parser.add_argument('--model_p2k',    default='week16_result.h5',
-                        help='PoseNet→Kinect2D model (Lab 10)')
+                        help='PoseNet→Kinect2D model')
     parser.add_argument('--model_3d',     default='week15_2d_to_3d.h5',
-                        help='Kinect2D→3D model (Lab 9)')
+                        help='Kinect2D→3D model')
     parser.add_argument('--model_seg',    default='week17_start_and_stop.h5',
-                        help='Start/Stop classifier (Lab 11)')
+                        help='Start/Stop classifier')
     parser.add_argument('--scaler_seg',   default='week17_start_and_stop.pkl',
-                        help='Scaler for Lab 11 model')
+                        help='Scaler')
     parser.add_argument('--cut_aggressiveness', type=float, default=0.5,
                         help='Bias towards longer exercise segments. '
                              'Higher values produce wider cuts, lower '

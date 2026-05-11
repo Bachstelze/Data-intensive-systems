@@ -40,7 +40,7 @@ def load_data(csv_path):
     return df
 
 
-def get_limits(df, margin=0.15):
+def get_limits(df, margin=0.5):
     """
     Compute axis limits from data with a margin.
     Returns (x_min,x_max), (y_min,y_max), (z_min,z_max)
@@ -205,7 +205,7 @@ def generate_from_pipeline_output(csv_path, fps=30):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description='3D skeleton animation — axes match reference figure')
+        description='3D skeleton animation')
     parser.add_argument('--csv',    required=True,
                         help='Path to cut_3d_points.csv')
     parser.add_argument('--fps',    type=int,   default=30)
