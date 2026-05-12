@@ -391,7 +391,7 @@ class PoseInterpolator:
         process_noise: float = 0.001,
         measurement_noise: float = 0.05,
         outlier_method: str = "velocity",
-        outlier_threshold: float = 3.0,
+        outlier_threshold: float = 1.0,
         min_confidence: float = 0.2,
         fill_method: str = "linear",
     ) -> None:
