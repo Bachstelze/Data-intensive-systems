@@ -2,7 +2,7 @@ from PIL import Image
 import gradio as gr
 from A8.pose_estimator import MoveNetPoseEstimator
 from A12.pose_interpolator import smooth_pose_sequence
-from A12.service.ui import run_a12_tab
+#from A12.service.ui import run_a12_tab
 from A12.service.ui import run_a12_video_tab
 import json
 import csv
@@ -426,7 +426,7 @@ with gr.Blocks(title="MoveNet Pose Estimation") as demo:
                 Endpoint alternative chosen: **Gradio tab inside the existing app.py**.
 
                 **Input:** one video file.
-                **Output:** annotated cut 2D video, 3D-animation data JSON, keypoints CSV,
+                **Output:** annotated cut 2D video, 3D skeleton animation video, keypoints CSV,
                 and good/bad classification JSON.
                 """
             )
@@ -464,8 +464,8 @@ with gr.Blocks(title="MoveNet Pose Estimation") as demo:
 
                 with gr.Column():
                     a12_video_output = gr.Video(label="Annotated cut 2D video")
-                    a12_animation_file = gr.File(label="3D animation data JSON")
-                    a12_keypoints_file = gr.File(label="Cut keypoints CSV")
+                    a12_animation_output = gr.Video(label="3D Skeleton Animation")
+                    a12_keypoints_file = gr.File(label="3D joint CSV")
                     a12_json_output = gr.JSON(label="Structured output")
                     a12_summary = gr.Markdown()
 
@@ -479,7 +479,7 @@ with gr.Blocks(title="MoveNet Pose Estimation") as demo:
                 ],
                 outputs=[
                     a12_video_output,
-                    a12_animation_file,
+                    a12_animation_output,
                     a12_keypoints_file,
                     a12_json_output,
                     a12_summary
