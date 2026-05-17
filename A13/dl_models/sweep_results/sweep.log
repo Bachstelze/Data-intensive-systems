@@ -1,0 +1,52 @@
+
+=== Dense sweep, problem A (input_dim=390) ===
+  [ 1/8] hu=(64, 32) dr=0.3 lr=0.001 params=28697 auc=0.975±0.048 acc=0.956 (22s)
+  [ 2/8] hu=(48, 24) dr=0.3 lr=0.001 params=21529 auc=0.971±0.047 acc=0.947 (21s)
+  [ 3/8] hu=(32, 16) dr=0.3 lr=0.001 params=14617 auc=0.966±0.062 acc=0.944 (21s)
+  [ 4/8] hu=(24, 12) dr=0.3 lr=0.001 params=11257 auc=0.969±0.056 acc=0.949 (22s)
+  [ 5/8] hu=(64, 32) dr=0.5 lr=0.001 params=28697 auc=0.977±0.037 acc=0.949 (22s)
+  [ 6/8] hu=(32, 16) dr=0.5 lr=0.001 params=14617 auc=0.966±0.063 acc=0.947 (24s)
+  [ 7/8] hu=(48, 24) dr=0.3 lr=0.0005 params=21529 auc=0.983±0.031 acc=0.956 (24s)
+  [ 8/8] hu=(24, 12, 8) dr=0.3 lr=0.001 params=11357 auc=0.987±0.016 acc=0.942 (24s)
+
+=== CNN sweep, problem A (input_shape=(10, 13, 3)) ===
+  [ 1/8] f=(8, 16) k=(3, 3) du=16 dr=0.3 lr=0.001 params=1693 auc=0.956±0.056 acc=0.918 (31s)
+  [ 2/8] f=(4, 8) k=(3, 3) du=8 dr=0.3 lr=0.001 params=501 auc=0.874±0.173 acc=0.807 (29s)
+  [ 3/8] f=(4, 8) k=(3, 3) du=16 dr=0.3 lr=0.001 params=581 auc=0.952±0.039 acc=0.890 (32s)
+  [ 4/8] f=(8, 8) k=(3, 3) du=8 dr=0.3 lr=0.001 params=901 auc=0.964±0.037 acc=0.898 (31s)
+  [ 5/8] f=(4, 8) k=(5, 3) du=8 dr=0.3 lr=0.001 params=765 auc=0.950±0.045 acc=0.912 (32s)
+  [ 6/8] f=(4, 8) k=(3, 3) du=8 dr=0.5 lr=0.001 params=501 auc=0.952±0.026 acc=0.871 (32s)
+  [ 7/8] f=(4, 8) k=(3, 3) du=8 dr=0.3 lr=0.0005 params=501 auc=0.884±0.084 acc=0.838 (33s)
+  [ 8/8] f=(6, 12) k=(3, 3) du=12 dr=0.3 lr=0.001 params=1009 auc=0.955±0.044 acc=0.878 (35s)
+
+-- Refit champions for problem A --
+  Dense champ: {'hidden_units': [24, 12, 8], 'dropout': 0.3, 'lr': 0.001}  params=11357  test_auc=0.901 test_acc=0.913
+  CNN   champ: {'filters': [8, 8], 'kernel_size': [3, 3], 'dense_units': 8, 'dropout': 0.3, 'lr': 0.001}  params=901  test_auc=1.000 test_acc=1.000
+  ratio CNN/Dense params = 7.93%   acc gap (Dense-CNN)/Dense = -9.5%
+
+=== Dense sweep, problem B (input_dim=260) ===
+  [ 1/8] hu=(64, 32) dr=0.3 lr=0.001 params=19857 auc=0.930±0.123 acc=0.898 (25s)
+  [ 2/8] hu=(48, 24) dr=0.3 lr=0.001 params=14769 auc=0.944±0.106 acc=0.938 (26s)
+  [ 3/8] hu=(32, 16) dr=0.3 lr=0.001 params=9937 auc=0.931±0.108 acc=0.904 (26s)
+  [ 4/8] hu=(24, 12) dr=0.3 lr=0.001 params=7617 auc=0.941±0.079 acc=0.907 (25s)
+  [ 5/8] hu=(64, 32) dr=0.5 lr=0.001 params=19857 auc=0.934±0.118 acc=0.907 (23s)
+  [ 6/8] hu=(32, 16) dr=0.5 lr=0.001 params=9937 auc=0.938±0.095 acc=0.887 (25s)
+  [ 7/8] hu=(48, 24) dr=0.3 lr=0.0005 params=14769 auc=0.929±0.123 acc=0.900 (25s)
+  [ 8/8] hu=(24, 12, 8) dr=0.3 lr=0.001 params=7717 auc=0.934±0.104 acc=0.913 (27s)
+
+=== CNN sweep, problem B (input_shape=(10, 13, 2)) ===
+  [ 1/8] f=(8, 16) k=(3, 3) du=16 dr=0.3 lr=0.001 params=1617 auc=0.894±0.100 acc=0.892 (36s)
+  [ 2/8] f=(4, 8) k=(3, 3) du=8 dr=0.3 lr=0.001 params=461 auc=0.870±0.073 acc=0.813 (39s)
+  [ 3/8] f=(4, 8) k=(3, 3) du=16 dr=0.3 lr=0.001 params=541 auc=0.907±0.082 acc=0.861 (36s)
+  [ 4/8] f=(8, 8) k=(3, 3) du=8 dr=0.3 lr=0.001 params=825 auc=0.900±0.072 acc=0.850 (36s)
+  [ 5/8] f=(4, 8) k=(5, 3) du=8 dr=0.3 lr=0.001 params=701 auc=0.889±0.093 acc=0.852 (40s)
+  [ 6/8] f=(4, 8) k=(3, 3) du=8 dr=0.5 lr=0.001 params=461 auc=0.853±0.127 acc=0.802 (42s)
+  [ 7/8] f=(4, 8) k=(3, 3) du=8 dr=0.3 lr=0.0005 params=461 auc=0.768±0.129 acc=0.752 (37s)
+  [ 8/8] f=(6, 12) k=(3, 3) du=12 dr=0.3 lr=0.001 params=951 auc=0.914±0.073 acc=0.872 (41s)
+
+-- Refit champions for problem B --
+  Dense champ: {'hidden_units': [48, 24], 'dropout': 0.3, 'lr': 0.001}  params=14769  test_auc=0.901 test_acc=0.913
+  CNN   champ: {'filters': [6, 12], 'kernel_size': [3, 3], 'dense_units': 12, 'dropout': 0.3, 'lr': 0.001}  params=951  test_auc=0.901 test_acc=0.913
+  ratio CNN/Dense params = 6.44%   acc gap (Dense-CNN)/Dense = +0.0%
+
+Wrote /Users/amol/Desktop/LNU/LNU_Masters/intensive/second_github/Data-intensive-systems/A13/dl_models/sweep_results/sweep_20260517_110821.json
