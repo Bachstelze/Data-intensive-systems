@@ -185,19 +185,30 @@ class ExercisePipeline:
                 scaler_segment='week17_start_and_stop.pkl',
                 scaler_onestep_X='week16_scaler_X.pkl',
                 scaler_onestep_y='week16_scaler_y.pkl',
-                cut_aggressiveness=0.5):
+                cut_aggressiveness=0.5,
+                quality_threshold=0.6):
 
         print("=" * 55)
         print("Initialising Exercise Pipeline")
         print("=" * 55)
 
         # Step 1: MoveNet
-        print("\n[1] Loading MoveNet pose estimator...")
+        # print("\n[1] Loading MoveNet pose estimator...")
+        # try:
+        #     sys.path.insert(0, str(Path(__file__).parent))
+        #     from pose_estimator import MoveNetPoseEstimator
+        #     self.pose_estimator = MoveNetPoseEstimator(model_name='lightning')
+        #     print("    MoveNet loaded")
+        print("\n[1] Loading MediaPipe pose estimator")
         try:
-            sys.path.insert(0, str(Path(__file__).parent))
-            from pose_estimator import MoveNetPoseEstimator
-            self.pose_estimator = MoveNetPoseEstimator(model_name='lightning')
-            print("    MoveNet loaded")
+            sys.path.insert(0, str(Path(__file__).parent / 'A14'))
+            from mediapipe_pose_estimator import MediaPipePoseEstimator
+            model_task = Path(__file__).parent / 'A14' / 'pose_landmarker_lite.task'
+            self.pose_estimator = MediaPipePoseEstimator(
+                model_asset_path=str(model_task),
+                min_detection_confidence=0.5
+            )
+            print("    MediaPipe loaded")
         except Exception as e:
             print(f"    ERROR: {e}")
             raise
@@ -249,7 +260,35 @@ class ExercisePipeline:
 
         self.cut_aggressiveness = cut_aggressiveness
         print(f"    Cut aggressiveness: {self.cut_aggressiveness}")
+        self.quality_threshold  = quality_threshold
 
+    def assess_recording_quality(self, pose_results,
+                                threshold=0.6, n_frames=30):
+        JOINTS_TO_CHECK = [
+            'nose', 'left_shoulder', 'right_shoulder',
+            'left_elbow', 'right_elbow',
+            'left_wrist', 'right_wrist',
+            'left_hip', 'right_hip',
+            'left_knee', 'right_knee',
+            'left_ankle', 'right_ankle'
+        ]
+
+        early_frames  = pose_results[:n_frames]
+        frame_scores  = []
+
+        for result in early_frames:
+            kps   = result['keypoints']
+            confs = [kps[j]['confidence']
+                    for j in JOINTS_TO_CHECK if j in kps]
+            if confs:
+                frame_scores.append(np.mean(confs))
+
+        if not frame_scores:
+            return 'UGLY', 0.0
+
+        avg_conf = float(np.mean(frame_scores))
+        label    = 'GOOD' if avg_conf >= threshold else 'UGLY'
+        return label, avg_conf
 
     def _prepare_quality_input(self, df_cut):
         # Sample 10 equidistant frame indices
@@ -297,14 +336,13 @@ class ExercisePipeline:
     def _extract_posenet_coords(self, frame):
         result = self.pose_estimator.detect_pose(frame)
         kps    = result['keypoints']
-
         coords = []
         for joint in JOINTS:
             movenet_name = KINECT_TO_MOVENET[joint]
             kp = kps[movenet_name]
             coords.extend([kp['x'], kp['y']])
 
-        return np.array(coords, dtype=np.float32)   # shape (26,)
+        return np.array(coords, dtype=np.float32), result   # shape (26,)
 
 
     def _predict_kinect_2d(self, posenet_coords):
@@ -459,8 +497,68 @@ class ExercisePipeline:
 
         return best_start, best_stop, predictions
 
+
+    def process_livestream(self, camera_index=0,
+                       joint_confidence_threshold=0.5):
+        cap       = cv2.VideoCapture(camera_index)
+        threshold = joint_confidence_threshold
+
+        print(f"Livestream started (camera {camera_index})")
+
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                break
+
+            result = self.pose_estimator.detect_pose(frame)
+            kps    = result['keypoints']
+            h, w   = frame.shape[:2]
+
+            # Draw joints above threshold only
+            for joint, kp in kps.items():
+                if kp['confidence'] >= threshold:
+                    px = int(kp['x'] * w)
+                    py = int(kp['y'] * h)
+                    cv2.circle(frame, (px, py), 5, (0, 255, 255), -1)
+                    cv2.circle(frame, (px, py), 6, (0, 0, 0), 1)
+
+            cv2.putText(frame,
+                        f"Threshold: {threshold:.2f}  (press +/-)",
+                        (20, 40), cv2.FONT_HERSHEY_SIMPLEX,
+                        0.8, (0, 255, 0), 2)
+            cv2.putText(frame,
+                        f"Inference: {result['inference_time_ms']:.1f}ms",
+                        (20, 75), cv2.FONT_HERSHEY_SIMPLEX,
+                        0.6, (200, 200, 200), 1)
+
+            cv2.imshow('MediaPipe Livestream Test', frame)
+
+            key = cv2.waitKey(1) & 0xFF
+            if key == ord('q'):
+                break
+            elif key in (ord('+'), ord('=')):
+                threshold = min(1.0, round(threshold + 0.05, 2))
+                print(f"  Threshold → {threshold:.2f}")
+            elif key == ord('-'):
+                threshold = max(0.0, round(threshold - 0.05, 2))
+                print(f"  Threshold → {threshold:.2f}")
+
+        cap.release()
+        cv2.destroyAllWindows()
+        print(f"\nFinal threshold: {threshold:.2f}")
+        print(f"Update min_detection_confidence={threshold:.2f} in __init__")
+
+    def close(self):
+        """Clean up resources explicitly."""
+        try:
+            self.pose_estimator.close()
+            print("Pipeline closed cleanly.")
+        except Exception:
+            pass
+
     def process_video(self, video_path):
         window_buffer = []
+        all_pose_results = []
         video_path = Path(video_path)
         if not video_path.exists():
             print(f"ERROR: Video not found: {video_path}")
@@ -478,21 +576,54 @@ class ExercisePipeline:
 
         all_3d = []
         frame_idx = 0
+        QUALITY_CHECK_FRAMES = 30 
 
         while cap.isOpened():
             ret, frame = cap.read()
             if not ret:
                 break
 
-            # --- 1. Get PoseNet dots from MoveNet (0.0 to 1.0 range) ---
-            posenet_coords = self._extract_posenet_coords(frame)
+            posenet_coords, pose_result = self._extract_posenet_coords(frame)
+            all_pose_results.append(pose_result)  
 
-            # --- 2. Scale the PoseNet input (StandardScaler X) ---
+            # Early quality check after first 30 frames 
+            if frame_idx == QUALITY_CHECK_FRAMES - 1:
+                print("\nAssessing recording quality...")
+                rec_label, rec_score = self.assess_recording_quality(
+                    all_pose_results,
+                    threshold=self.quality_threshold,
+                    n_frames=QUALITY_CHECK_FRAMES
+                )
+                print(f"  Recording quality : {rec_label}")
+                print(f"  Avg confidence    : {rec_score:.3f}")
+
+                if rec_label == 'UGLY':
+                    cap.release()
+                    print(f"\n  WARNING: Poor recording quality detected.")
+                    print(f"  Confidence {rec_score:.2f} < "
+                        f"threshold {self.quality_threshold:.2f}")
+
+                    results = {
+                        "video":                video_path.name,
+                        "total_frames":         frame_idx + 1,
+                        "recording_quality":    "UGLY",
+                        "recording_confidence": round(rec_score, 3),
+                        "recording_threshold":  self.quality_threshold,
+                        "pipeline_stopped":     True,
+                        "reason":               "Poor recording quality. "
+                    }
+                    json_path = out_dir / f"{stem}_results.json"
+                    with open(str(json_path), 'w') as f:
+                        json.dump(results, f, indent=2)
+                    print(f"  Saved: {json_path.name}")
+                    return results   # ← stops here after only 30 frames
+
+                print("  Recording acceptable — continuing pipeline")
+
             X_input = posenet_coords.reshape(1, -1)
             if hasattr(self, 'scaler_onestep_X') and self.scaler_onestep_X is not None:
                 X_input = self.scaler_onestep_X.transform(X_input)
 
-            # --- 3. Run the model prediction ---
             kinect_output_scaled = self.model_p2k.predict(X_input, verbose=0)
 
             if self.p2k_output_dim == 39:
@@ -607,6 +738,9 @@ class ExercisePipeline:
             "exercise_frames": int(stop_frame - start_frame + 1),
             "exercise_duration_sec": round((stop_frame - start_frame + 1) / 30.0, 2),
             "quality_label": quality_label,
+            "quality_confidence": round(quality_confidence,3),
+            "recording_quality":       rec_label,          
+            "recording_confidence":    round(rec_score, 3), 
             "pipeline_version": "A8-A13 finsihed"
         }
         json_path = out_dir / f"{stem}_results.json"
@@ -657,13 +791,29 @@ if __name__ == "__main__":
                              'Higher values produce wider cuts, lower '
                              'values prefer segments with cleaner non-'
                              'exercise surroundings. (default: 0.5)')
+    parser.add_argument('--livestream', action='store_true',
+                    help='Test MediaPipe on live webcam')
+    parser.add_argument('--camera', type=int, default=0,
+                    help='Camera index for livestream (default 0)')
+    parser.add_argument('--quality_threshold', type=float, default=0.6,
+                    help='Recording quality threshold (default 0.6). '
+                         'Lower = more lenient.')
+    
+    
     args = parser.parse_args()
-
     pipeline = ExercisePipeline(
         model_posenet_to_k2d=args.model_p2k,
         model_k2d_to_k3d=args.model_3d,
         model_segment=args.model_seg,
         scaler_segment=args.scaler_seg,
         cut_aggressiveness=args.cut_aggressiveness,
+        quality_threshold=args.quality_threshold,
     )
-    pipeline.process_video(args.video)
+
+    try:
+        if args.livestream:
+            pipeline.process_livestream(camera_index=args.camera)
+        else:
+            pipeline.process_video(args.video)
+    finally:
+        pipeline.close() 

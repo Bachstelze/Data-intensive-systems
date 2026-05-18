@@ -382,6 +382,13 @@ class MediaPipePoseEstimator:
             print(f"Saved annotated image to: {output_path}")
 
         return result
+    
+    def close(self):
+        """Explicitly close the detector to prevent __del__ cleanup errors."""
+        try:
+            self.detector.close()
+        except Exception:
+            pass
 
 
 def main():
