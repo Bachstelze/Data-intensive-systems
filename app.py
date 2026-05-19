@@ -2,11 +2,13 @@ from PIL import Image
 import gradio as gr
 from A8.pose_estimator import MoveNetPoseEstimator
 from A12.pose_interpolator import smooth_pose_sequence
-#from A12.service.ui import run_a12_tab
+#http://127.0.0.1:7860from A12.service.ui import run_a12_tab
 from A12.service.ui import run_a12_video_tab
+from exercise_pipeline import ExercisePipeline
 import json
 import csv
 import os
+from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Any, Optional
 import numpy as np
@@ -202,6 +204,55 @@ def format_pose_output(joint_data: Dict[str, Any]) -> str:
     output += f"**JSON File:** `{joint_data.get('json_path', 'N/A')}`\n"
 
     return output
+
+def run_a14_pipeline(video_path, quality_threshold):
+    if video_path is None:
+        return None, "No video uploaded", "N/A", {}
+
+    pipeline = ExercisePipeline(quality_threshold=quality_threshold)
+    try:
+        results = pipeline.process_video(video_path)
+    finally:
+        pipeline.close()
+
+    # Handle UGLY case
+    if results is None or results.get("pipeline_stopped"):
+        return (
+            None,
+            f"REJECTED — Poor recording quality "
+            f"(conf: {results.get('recording_confidence', 0):.2f})",
+            "N/A",
+            results or {}
+        )
+
+    # Handle SUCCESS case
+    stem    = Path(video_path).stem
+
+    pipeline_dir = Path(__file__).parent
+    out_dir      = pipeline_dir / "outputs"
+    video_3d_path = out_dir / f"{stem}_skeleton.mp4"
+
+    video_3d = None
+    if video_3d_path.exists():
+        import shutil
+        import tempfile
+        tmp = tempfile.NamedTemporaryFile(
+            suffix='.mp4', delete=False)
+        shutil.copy(str(video_3d_path), tmp.name)
+        video_3d = tmp.name
+        print(f"  Copied to temp: {tmp.name}")
+
+    status_text  = (f"ACCEPTED — Recording OK "
+                    f"(conf: {results.get('recording_confidence', 0):.2f})")
+    quality_text = (f"{results.get('quality_label', 'N/A')} "
+                    f"({results.get('quality_confidence', 0):.1%})")
+
+    return (
+        video_3d,      # 1. a14_3d_output
+        status_text,   # 2. a14_rec_status
+        quality_text,  # 3. a14_exercise_quality
+        results        # 4. a14_json_output
+    )
 
 
 def process_and_display(image: Image.Image, confidence_threshold: float = 0.3) -> tuple:
@@ -484,6 +535,46 @@ with gr.Blocks(title="MoveNet Pose Estimation") as demo:
                     a12_summary
                 ],
             )
+
+            # Exercise pipeline A14
+        with gr.TabItem("Exercise Analysis (A14)"):
+            gr.Markdown(
+                """
+                ## A14: Advanced Exercise Pipeline
+                **Features:** Automated 'Ugly' recording rejection + 'Good/Bad' form classification.
+                """
+            )
+
+            with gr.Row():
+                with gr.Column():
+                    a14_input_video = gr.Video(label="Upload Exercise Video")
+                    a14_threshold = gr.Slider(
+                        minimum=0.1, maximum=0.9, value=0.6, step=0.05,
+                        label="Recording Quality Threshold"
+                    )
+                    a14_run_btn = gr.Button("Run Full Analysis", variant="primary")
+
+                with gr.Column():
+                    # High-visibility results
+                    with gr.Row():
+                        a14_rec_status = gr.Textbox(label="Recording Status", interactive=False)
+                        a14_exercise_quality = gr.Label(label="Exercise quality")
+                    
+                    a14_3d_output = gr.Video(label="3D Skeleton Animation")
+                    a14_json_output = gr.JSON(label="Full Metadata")
+
+            # Link the button to the bridge function
+            a14_run_btn.click(
+                fn=run_a14_pipeline,
+                inputs=[a14_input_video, a14_threshold],
+                outputs=[
+                    a14_3d_output, 
+                    a14_rec_status, 
+                    a14_exercise_quality, 
+                    a14_json_output
+                ]
+            )
+
 
     # Example section
     with gr.Accordion("ℹ️ Information", open=False):
