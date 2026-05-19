@@ -2,7 +2,7 @@ from PIL import Image
 import gradio as gr
 from A8.pose_estimator import MoveNetPoseEstimator
 from A12.pose_interpolator import smooth_pose_sequence
-#from A12.service.ui import run_a12_tab
+#http://127.0.0.1:7860from A12.service.ui import run_a12_tab
 from A12.service.ui import run_a12_video_tab
 import json
 import csv
@@ -15,7 +15,7 @@ import tempfile
 import time
 
 # Initialize MoveNet pose estimator
-#pose_estimator = MoveNetPoseEstimator(model_name='lightning')
+pose_estimator = MoveNetPoseEstimator(model_name='lightning')
 
 # COCO Keypoint definitions (17 keypoints)
 KEYPOINT_NAMES = [
