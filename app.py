@@ -15,7 +15,7 @@ import tempfile
 import time
 
 # Initialize MoveNet pose estimator
-#pose_estimator = MoveNetPoseEstimator(model_name='lightning')
+pose_estimator = MoveNetPoseEstimator(model_name='lightning')
 
 # COCO Keypoint definitions (17 keypoints)
 KEYPOINT_NAMES = [

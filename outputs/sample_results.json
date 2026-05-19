@@ -2,7 +2,7 @@
   "video": "sample.webm",
   "total_frames": 30,
   "recording_quality": "UGLY",
-  "recording_confidence": 0.338,
+  "recording_confidence": 0.406,
   "recording_threshold": 0.6,
   "pipeline_stopped": true,
   "reason": "Poor recording quality. "
