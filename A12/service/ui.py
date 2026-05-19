@@ -18,7 +18,7 @@ def run_a12_video_tab(video_path, confidence, smoothing_strategy, smoothing_meth
         conf = classification.get("confidence", 0.0)
 
         summary = f"""
-### A12 Pipeline Results
+### Pipeline Results
 
 - Classification: **{label}**
 - Confidence: **{conf:.2f}**
@@ -30,7 +30,6 @@ Outputs:
 """
 
         return (
-            annotated_video,
             animation_video,
             csv_path,
             result,

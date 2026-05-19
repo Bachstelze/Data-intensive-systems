@@ -15,7 +15,7 @@ import tempfile
 import time
 
 # Initialize MoveNet pose estimator
-pose_estimator = MoveNetPoseEstimator(model_name='lightning')
+#pose_estimator = MoveNetPoseEstimator(model_name='lightning')
 
 # COCO Keypoint definitions (17 keypoints)
 KEYPOINT_NAMES = [
@@ -418,7 +418,7 @@ with gr.Blocks(title="MoveNet Pose Estimation") as demo:
             )
 
         # A12 Video Pipeline Tab
-        with gr.TabItem("🧪 A12 Video Pipeline"):
+        with gr.TabItem("🧪 Video Pipeline"):
             gr.Markdown(
                 """
                 ### Issue #12: App development and pipeline integration
@@ -463,7 +463,7 @@ with gr.Blocks(title="MoveNet Pose Estimation") as demo:
                     a12_run_btn = gr.Button("Run A12 pipeline", variant="primary")
 
                 with gr.Column():
-                    a12_video_output = gr.Video(label="Annotated cut 2D video")
+                    #a12_video_output = gr.Video(label="Annotated cut 2D video")
                     a12_animation_output = gr.Video(label="3D Skeleton Animation")
                     a12_keypoints_file = gr.File(label="3D joint CSV")
                     a12_json_output = gr.JSON(label="Structured output")
@@ -478,7 +478,6 @@ with gr.Blocks(title="MoveNet Pose Estimation") as demo:
                     a12_smoothing_method
                 ],
                 outputs=[
-                    a12_video_output,
                     a12_animation_output,
                     a12_keypoints_file,
                     a12_json_output,
