@@ -1,0 +1,9 @@
+{
+  "peak_margin_min": 0.437,
+  "lateral_max_max": 0.251,
+  "contra_rise_max": 0.111,
+  "lift_seconds_min": 0.6,
+  "lift_seconds_max": 4.53,
+  "trunk_disp_max": 0.346,
+  "calibration": "90th percentile on filename-GOOD clips (n=71)"
+}
