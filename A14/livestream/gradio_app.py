@@ -47,7 +47,7 @@ from mediapipe.tasks.python.vision import PoseLandmarksConnections  # noqa: E402
 # Config
 # ---------------------------------------------------------------------------
 
-MODEL_PATH = os.path.join(os.path.dirname(__file__), "pose_landmarker_lite.task")
+MODEL_PATH = os.path.join(os.path.dirname(__file__), "..", "pose_landmarker_lite.task")
 
 # Skeleton edges straight from the Tasks API. ``POSE_LANDMARKS`` is a list of
 # ``Connection(start, end)``. We materialise it into a list of (int, int)
