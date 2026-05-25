@@ -1,0 +1,19 @@
+{
+  "best_architecture": "Dense_medium",
+  "best_optimizer": "rmsprop",
+  "best_lr": 0.001,
+  "best_batch": 8,
+  "cv_folds": 3,
+  "cv_mae": 0.1787,
+  "cv_std": 0.0153,
+  "test_mae": 0.4351,
+  "test_mse": 0.3338,
+  "correlation": 0.7169,
+  "n_params": 25089,
+  "n_training_videos": 670,
+  "n_test_videos": 70,
+  "score_range_min": 0.0,
+  "score_range_max": 4.0,
+  "model_path": "models/scoring_model.keras",
+  "scaler_path": "models/scoring_scaler.pkl"
+}
