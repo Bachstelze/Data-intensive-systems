@@ -1,0 +1,29 @@
+A15 — Connect scores.csv + Datasets_all, filter ugly exercises
+============================================================
+
+Total clips in scores.csv:  180
+Kinect files found:         179
+Successfully processed:     179
+Missing Kinect files:       1
+
+Model predicted GOOD:       171
+Model predicted UGLY:       8
+
+Output files:
+  /home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_predictions.csv
+  /home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_good_list.csv
+  /home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_ugly_list.csv
+
+UGLY exercises (scored, predicted bad form):
+  A113_kinect           score=1.1025  P(good)=0.3553
+  A114_kinect           score=1.1480  P(good)=0.4455
+  A53_kinect            score=1.1700  P(good)=0.2778
+  A54_kinect            score=1.1632  P(good)=0.2769
+  A73_kinect            score=1.1334  P(good)=0.2022
+  A76_kinect            score=1.1972  P(good)=0.4506
+  A77_kinect            score=1.2325  P(good)=0.1765
+  B4_kinect             score=1.2690  P(good)=0.4971
+
+Mean score of UGLY exercises: 1.1770
+
+Mean score of GOOD exercises: 1.0971

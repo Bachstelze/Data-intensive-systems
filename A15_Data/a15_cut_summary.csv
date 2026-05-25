@@ -1,0 +1,172 @@
+clip,status,n_frames_input,n_frames_cut,start_frame,stop_frame,cut_path
+A100_kinect,ok,163,163,3,165,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A100_kinect.csv
+A101_kinect,ok,229,229,2,230,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A101_kinect.csv
+A102_kinect,ok,206,206,5,210,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A102_kinect.csv
+A103_kinect,ok,168,168,54,221,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A103_kinect.csv
+A104_kinect,ok,153,153,2,154,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A104_kinect.csv
+A105_kinect,ok,146,146,1,146,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A105_kinect.csv
+A106_kinect,ok,159,159,6,164,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A106_kinect.csv
+A108_kinect,too_short_3_frames,154,3,281,283,
+A109_kinect,ok,100,100,73,172,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A109_kinect.csv
+A10_kinect,ok,161,161,42,202,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A10_kinect.csv
+A110_kinect,ok,113,113,91,203,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A110_kinect.csv
+A111_kinect,too_short_2_frames,200,2,2,3,
+A112_kinect,ok,63,63,84,146,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A112_kinect.csv
+A115_kinect,ok,104,104,65,168,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A115_kinect.csv
+A116_kinect,ok,214,173,0,172,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A116_kinect.csv
+A117_kinect,ok,216,216,0,215,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A117_kinect.csv
+A118_kinect,ok,130,130,0,129,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A118_kinect.csv
+A119_kinect,ok,167,167,0,166,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A119_kinect.csv
+A11_kinect,ok,218,40,154,193,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A11_kinect.csv
+A120_kinect,ok,146,146,23,168,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A120_kinect.csv
+A121_kinect,ok,219,219,0,218,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A121_kinect.csv
+A122_kinect,too_short_2_frames,150,2,174,175,
+A123_kinect,too_short_4_frames,163,4,1,4,
+A124_kinect,ok,144,144,16,159,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A124_kinect.csv
+A125_kinect,too_short_2_frames,144,2,6,7,
+A126_kinect,ok,117,117,144,260,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A126_kinect.csv
+A127_kinect,ok,145,145,20,164,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A127_kinect.csv
+A128_kinect,ok,141,141,0,140,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A128_kinect.csv
+A129_kinect,ok,107,107,59,165,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A129_kinect.csv
+A12_kinect,too_short_2_frames,167,2,134,135,
+A130_kinect,ok,236,235,2,236,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A130_kinect.csv
+A131_kinect,ok,130,130,0,129,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A131_kinect.csv
+A132_kinect,ok,113,113,33,145,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A132_kinect.csv
+A133_kinect,ok,176,176,0,175,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A133_kinect.csv
+A134_kinect,ok,116,116,0,115,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A134_kinect.csv
+A135_kinect,ok,113,113,13,125,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A135_kinect.csv
+A136_kinect,ok,71,71,34,104,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A136_kinect.csv
+A137_kinect,ok,108,108,70,177,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A137_kinect.csv
+A138_kinect,ok,218,218,69,286,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A138_kinect.csv
+A139_kinect,ok,132,132,69,200,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A139_kinect.csv
+A13_kinect,ok,165,165,14,178,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A13_kinect.csv
+A140_kinect,ok,106,106,6,111,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A140_kinect.csv
+A141_kinect,too_short_2_frames,123,2,87,88,
+A142_kinect,ok,97,97,24,120,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A142_kinect.csv
+A143_kinect,ok,97,97,23,119,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A143_kinect.csv
+A144_kinect,ok,87,87,46,132,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A144_kinect.csv
+A145_kinect,ok,94,94,42,135,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A145_kinect.csv
+A146_kinect,ok,90,90,66,155,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A146_kinect.csv
+A147_kinect,ok,94,94,30,123,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A147_kinect.csv
+A148_kinect,ok,97,97,23,119,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A148_kinect.csv
+A149_kinect,ok,114,114,13,126,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A149_kinect.csv
+A14_kinect,too_short_2_frames,163,2,3,4,
+A150_kinect,ok,120,120,33,152,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A150_kinect.csv
+A151_kinect,ok,77,77,79,155,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A151_kinect.csv
+A152_kinect,ok,111,111,55,165,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A152_kinect.csv
+A153_kinect,too_short_2_frames,74,2,65,66,
+A154_kinect,ok,90,90,16,105,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A154_kinect.csv
+A155_kinect,ok,117,117,57,173,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A155_kinect.csv
+A156_kinect,too_short_2_frames,112,2,102,103,
+A157_kinect,ok,85,85,138,222,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A157_kinect.csv
+A158_kinect,too_short_3_frames,105,3,69,71,
+A159_kinect,ok,76,76,47,122,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A159_kinect.csv
+A15_kinect,ok,123,123,12,134,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A15_kinect.csv
+A16_kinect,ok,121,121,30,150,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A16_kinect.csv
+A17_kinect,ok,122,122,21,142,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A17_kinect.csv
+A18_kinect,ok,114,114,54,167,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A18_kinect.csv
+A19_kinect,ok,120,120,29,148,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A19_kinect.csv
+A20_kinect,ok,104,104,24,127,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A20_kinect.csv
+A21_kinect,ok,119,119,24,142,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A21_kinect.csv
+A22_kinect,ok,98,98,38,135,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A22_kinect.csv
+A23_kinect,ok,86,86,34,119,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A23_kinect.csv
+A24_kinect,ok,104,104,45,148,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A24_kinect.csv
+A25_kinect,too_short_15_frames,100,15,33,47,
+A26_kinect,ok,66,66,28,93,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A26_kinect.csv
+A27_kinect,ok,79,79,38,116,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A27_kinect.csv
+A28_kinect,ok,80,80,27,106,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A28_kinect.csv
+A29_kinect,ok,93,93,34,126,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A29_kinect.csv
+A2_kinect,ok,154,154,70,223,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A2_kinect.csv
+A30_kinect,ok,90,90,41,130,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A30_kinect.csv
+A31_kinect,ok,111,111,27,137,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A31_kinect.csv
+A32_kinect,ok,94,94,47,140,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A32_kinect.csv
+A33_kinect,ok,111,111,25,135,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A33_kinect.csv
+A34_kinect,ok,94,94,40,133,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A34_kinect.csv
+A35_kinect,too_short_7_frames,73,7,68,74,
+A36_kinect,too_short_13_frames,65,13,74,86,
+A37_kinect,ok,88,88,44,131,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A37_kinect.csv
+A38_kinect,ok,48,48,40,87,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A38_kinect.csv
+A39_kinect,ok,58,58,43,100,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A39_kinect.csv
+A3_kinect,ok,128,128,55,182,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A3_kinect.csv
+A40_kinect,ok,121,121,17,137,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A40_kinect.csv
+A41_kinect,ok,128,128,53,180,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A41_kinect.csv
+A42_kinect,ok,123,123,55,177,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A42_kinect.csv
+A43_kinect,ok,132,132,25,156,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A43_kinect.csv
+A44_kinect,ok,115,68,125,192,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A44_kinect.csv
+A45_kinect,too_short_3_frames,149,3,44,46,
+A46_kinect,ok,97,97,26,122,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A46_kinect.csv
+A47_kinect,ok,116,36,69,104,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A47_kinect.csv
+A48_kinect,ok,169,169,0,168,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A48_kinect.csv
+A49_kinect,ok,116,116,32,147,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A49_kinect.csv
+A4_kinect,ok,164,164,56,219,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A4_kinect.csv
+A50_kinect,too_short_5_frames,132,5,164,168,
+A51_kinect,ok,141,141,8,148,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A51_kinect.csv
+A52_kinect,ok,153,153,21,173,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A52_kinect.csv
+A55_kinect,ok,223,223,2,224,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A55_kinect.csv
+A56_kinect,ok,161,161,67,227,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A56_kinect.csv
+A57_kinect,ok,191,191,64,254,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A57_kinect.csv
+A58_kinect,ok,227,227,1,227,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A58_kinect.csv
+A59_kinect,too_short_6_frames,213,6,3,8,
+A5_kinect,ok,114,114,55,168,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A5_kinect.csv
+A61_kinect,ok,112,112,32,143,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A61_kinect.csv
+A62_kinect,ok,116,116,55,170,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A62_kinect.csv
+A63_kinect,ok,114,114,92,205,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A63_kinect.csv
+A64_kinect,ok,122,122,94,215,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A64_kinect.csv
+A65_kinect,ok,127,127,8,134,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A65_kinect.csv
+A66_kinect,ok,126,126,15,140,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A66_kinect.csv
+A67_kinect,ok,121,85,115,199,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A67_kinect.csv
+A68_kinect,ok,116,116,48,163,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A68_kinect.csv
+A69_kinect,ok,115,115,39,153,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A69_kinect.csv
+A6_kinect,ok,143,143,30,172,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A6_kinect.csv
+A70_kinect,ok,88,88,19,106,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A70_kinect.csv
+A71_kinect,ok,140,119,75,193,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A71_kinect.csv
+A72_kinect,ok,165,165,40,204,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A72_kinect.csv
+A74_kinect,ok,99,99,54,152,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A74_kinect.csv
+A75_kinect,ok,98,98,2,99,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A75_kinect.csv
+A78_kinect,ok,214,214,2,215,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A78_kinect.csv
+A79_kinect,ok,255,252,3,254,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A79_kinect.csv
+A7_kinect,ok,142,142,46,187,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A7_kinect.csv
+A80_kinect,ok,245,245,2,246,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A80_kinect.csv
+A81_kinect,ok,281,281,22,302,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A81_kinect.csv
+A82_kinect,ok,237,237,0,236,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A82_kinect.csv
+A83_kinect,too_short_3_frames,181,3,1,3,
+A84_kinect,ok,211,211,1,211,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A84_kinect.csv
+A85_kinect,ok,198,198,35,232,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A85_kinect.csv
+A86_kinect,ok,258,258,4,261,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A86_kinect.csv
+A87_kinect,ok,217,217,3,219,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A87_kinect.csv
+A88_kinect,ok,258,258,1,258,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A88_kinect.csv
+A89_kinect,ok,158,158,75,232,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A89_kinect.csv
+A8_kinect,ok,144,144,51,194,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A8_kinect.csv
+A90_kinect,ok,181,181,34,214,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A90_kinect.csv
+A91_kinect,ok,167,167,13,179,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A91_kinect.csv
+A92_kinect,ok,110,110,14,123,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A92_kinect.csv
+A93_kinect,too_short_7_frames,132,7,130,136,
+A94_kinect,ok,266,266,51,316,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A94_kinect.csv
+A95_kinect,too_short_5_frames,145,5,175,179,
+A96_kinect,too_short_1_frames,185,1,189,189,
+A97_kinect,too_short_2_frames,315,2,36,37,
+A98_kinect,ok,130,130,0,129,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A98_kinect.csv
+A99_kinect,ok,152,152,20,171,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A99_kinect.csv
+A9_kinect,ok,134,134,41,174,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A9_kinect.csv
+B10_kinect,ok,86,86,108,193,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/B10_kinect.csv
+B11_kinect,ok,121,121,70,190,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/B11_kinect.csv
+B12_kinect,ok,84,84,106,189,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/B12_kinect.csv
+B13_kinect,ok,87,87,153,239,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/B13_kinect.csv
+B14_kinect,ok,92,92,113,204,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/B14_kinect.csv
+B15_kinect,ok,93,93,111,203,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/B15_kinect.csv
+B16_kinect,ok,84,84,124,207,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/B16_kinect.csv
+B17_kinect,ok,98,98,110,207,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/B17_kinect.csv
+B18_kinect,too_short_2_frames,89,2,108,109,
+B19_kinect,ok,95,95,101,195,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/B19_kinect.csv
+B1_kinect,ok,53,53,69,121,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/B1_kinect.csv
+B20_kinect,ok,99,99,98,196,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/B20_kinect.csv
+B21_kinect,ok,103,103,98,200,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/B21_kinect.csv
+B22_kinect,ok,84,84,90,173,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/B22_kinect.csv
+B2_kinect,ok,89,89,29,117,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/B2_kinect.csv
+B3_kinect,ok,87,87,23,109,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/B3_kinect.csv
+B5_kinect,ok,99,99,41,139,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/B5_kinect.csv
+B6_kinect,ok,106,106,157,262,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/B6_kinect.csv
+B7_kinect,ok,96,96,123,218,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/B7_kinect.csv
+B8_kinect,ok,88,88,108,195,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/B8_kinect.csv
+B9_kinect,ok,88,88,96,183,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/B9_kinect.csv
+A1_kinect,ok,112,112,68,179,/home/cyclonaut/Dokumente/Studium Växjö/data intensive project/end_epril_repo/Data-intensive-systems/A15/a15_cut/A1_kinect.csv
