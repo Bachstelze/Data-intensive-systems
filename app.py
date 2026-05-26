@@ -16,6 +16,142 @@ import cv2
 import tempfile
 import time
 
+# --- A15 scoring model (lazy-loaded) -------------------------------------
+A15_JOINTS = [
+    'head', 'left_shoulder', 'left_elbow', 'right_shoulder', 'right_elbow',
+    'left_hand', 'right_hand', 'left_hip', 'right_hip',
+    'left_knee', 'right_knee', 'left_foot', 'right_foot',
+]
+A15_C = 10  # frames per clip the scorer was trained on
+_A15_MODEL = None
+_A15_SCALER = None
+
+
+def _load_a15_scorer():
+    """Lazy-load the deployed regression scorer (issue #20 wiring)."""
+    global _A15_MODEL, _A15_SCALER
+    if _A15_MODEL is not None and _A15_SCALER is not None:
+        return _A15_MODEL, _A15_SCALER
+    import joblib
+    from tensorflow import keras
+    from tensorflow.keras import layers
+    repo_root = Path(__file__).parent
+    model_path = repo_root / 'models' / 'scoring_model.keras'
+    scaler_path = repo_root / 'models' / 'scoring_scaler.pkl'
+    try:
+        _A15_MODEL = keras.models.load_model(str(model_path))
+    except (TypeError, ValueError):
+        # Saved with a newer Keras (e.g. extra `quantization_config` kwarg);
+        # rebuild Dense_medium and load weights only. Architecture matches
+        # training_summary.json's deployed champion.
+        inp = keras.Input(shape=(390,))
+        x = layers.Dense(64, activation='relu')(inp)
+        x = layers.Dropout(0.2)(x)
+        out = layers.Dense(1, activation='linear')(x)
+        _A15_MODEL = keras.Model(inp, out, name='Dense')
+        _A15_MODEL.load_weights(str(model_path))
+    _A15_SCALER = joblib.load(str(scaler_path))
+    return _A15_MODEL, _A15_SCALER
+
+
+def _a15_sample_frames(df) -> np.ndarray:
+    df.columns = df.columns.str.strip()
+    idx = np.linspace(0, len(df) - 1, A15_C).astype(int)
+    sub = df.iloc[idx]
+    frames = []
+    for _, row in sub.iterrows():
+        frames.append([[row[f'{j}_x'], row[f'{j}_y'], row[f'{j}_z']]
+                       for j in A15_JOINTS])
+    return np.array(frames, dtype=np.float32)
+
+
+def _a15_score_band(score: float) -> str:
+    if score < 1.0:
+        return "GREEN — acceptable form (0-1)"
+    if score < 2.0:
+        return "AMBER — borderline (1-2)"
+    return "RED — poor form (2-4)"
+
+
+def run_a15_scoring(video_path, quality_threshold):
+    """End-to-end A15 scoring: video → cut 3D CSV → 0-4 score with timing."""
+    if video_path is None:
+        return "No video uploaded", "N/A", "N/A", {}
+
+    import pandas as pd
+
+    # 1) Upstream: pose extraction + 3D lift + A12 cut via ExercisePipeline.
+    t_up_start = time.perf_counter()
+    pipeline = ExercisePipeline(quality_threshold=quality_threshold)
+    try:
+        results = pipeline.process_video(video_path)
+    finally:
+        pipeline.close()
+    t_upstream = (time.perf_counter() - t_up_start) * 1000.0
+
+    if results is None or results.get("pipeline_stopped"):
+        return (
+            f"REJECTED — poor recording quality "
+            f"(conf {results.get('recording_confidence', 0):.2f})"
+            if results else "REJECTED — could not open video",
+            "N/A",
+            "N/A",
+            results or {},
+        )
+
+    # 2) Load the cut 3D CSV produced by the pipeline.
+    stem = Path(video_path).stem
+    cut_csv = Path(__file__).parent / "outputs" / f"{stem}_cut_3d_points.csv"
+    if not cut_csv.exists():
+        return ("ERROR — cut 3D CSV not produced by pipeline", "N/A", "N/A", results)
+
+    df = pd.read_csv(cut_csv)
+    if len(df) < A15_C:
+        return (
+            f"REJECTED — too few frames after cut ({len(df)} < {A15_C})",
+            "N/A", "N/A", results,
+        )
+
+    # 3) Adapter: sample, scale, predict (timed separately).
+    model, scaler = _load_a15_scorer()
+    t_sample_s = time.perf_counter()
+    frames = _a15_sample_frames(df)
+    flat = frames.reshape(1, -1)
+    scaled = scaler.transform(flat).astype(np.float32)
+    if len(model.input_shape) == 3:
+        scaled = scaled.reshape(1, A15_C, len(A15_JOINTS) * 3)
+    t_adapter = (time.perf_counter() - t_sample_s) * 1000.0
+
+    t_nn_s = time.perf_counter()
+    raw = float(model.predict(scaled, verbose=0).flatten()[0])
+    t_nn = (time.perf_counter() - t_nn_s) * 1000.0
+
+    score = float(np.clip(raw, 0.0, 4.0))
+    band = _a15_score_band(score)
+
+    t_total = t_upstream + t_adapter + t_nn
+    timing_md = (
+        f"**Score:** `{score:.2f} / 4`  \n"
+        f"**Band:** {band}  \n"
+        f"**Decision time (NN only):** {t_nn:.1f} ms  \n"
+        f"**Adapter (sample + scale):** {t_adapter:.1f} ms  \n"
+        f"**Upstream (pose + 3D lift + cut):** {t_upstream:.1f} ms  \n"
+        f"**End-to-end total:** {t_total/1000:.2f} s  \n"
+        f"**NN as % of total:** {(t_nn/t_total)*100:.2f} %"
+    )
+
+    results_with_score = dict(results)
+    results_with_score["a15_score"] = round(score, 4)
+    results_with_score["a15_band"] = band
+    results_with_score["a15_timing_ms"] = {
+        "nn_predict": round(t_nn, 2),
+        "adapter":    round(t_adapter, 2),
+        "upstream":   round(t_upstream, 2),
+        "total":      round(t_total, 2),
+    }
+    return (band, f"{score:.2f} / 4", timing_md, results_with_score)
+# --- end A15 ------------------------------------------------------------
+
 # Initialize MoveNet pose estimator
 pose_estimator = MoveNetPoseEstimator(model_name='lightning')
 
@@ -573,6 +709,46 @@ with gr.Blocks(title="MoveNet Pose Estimation") as demo:
                     a14_exercise_quality, 
                     a14_json_output
                 ]
+            )
+
+        # A15 Exercise Scoring tab — 0-4 regression score
+        with gr.TabItem("Exercise Scoring (A15)"):
+            gr.Markdown(
+                """
+                ## A15: Exercise Scoring (0–4 regression)
+
+                **Score scale:** `0` = perfect form, `4` = worst kept clip.
+
+                Bands:
+                - **GREEN** `< 1` — acceptable form
+                - **AMBER** `1–2` — borderline, consider another take
+                - **RED**   `≥ 2` — poor form
+
+                The same upstream pipeline as A14 is reused (pose extraction +
+                3D lift + A12 start/stop cut). Decision-time of the NN and the
+                overall response-time breakdown are reported alongside the score.
+                """
+            )
+
+            with gr.Row():
+                with gr.Column():
+                    a15_input_video = gr.Video(label="Upload Exercise Video")
+                    a15_threshold = gr.Slider(
+                        minimum=0.1, maximum=0.9, value=0.6, step=0.05,
+                        label="Recording Quality Threshold"
+                    )
+                    a15_run_btn = gr.Button("Run A15 scoring", variant="primary")
+
+                with gr.Column():
+                    a15_band = gr.Textbox(label="Band", interactive=False)
+                    a15_score = gr.Textbox(label="Score (0–4)", interactive=False)
+                    a15_timing = gr.Markdown(label="Timing breakdown")
+                    a15_json = gr.JSON(label="Full results")
+
+            a15_run_btn.click(
+                fn=run_a15_scoring,
+                inputs=[a15_input_video, a15_threshold],
+                outputs=[a15_band, a15_score, a15_timing, a15_json],
             )
 
 
