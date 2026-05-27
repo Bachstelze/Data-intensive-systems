@@ -78,18 +78,32 @@ def _next_live_timestamp_ms() -> int:
     return (time.monotonic_ns() - _LIVE_T0_NS) // 1_000_000
 
 
+_TARGET_WIDTH = 480  # downscale on the server to cut encode + transport cost
+
+
 def _live_process_frame(frame_rgb: Optional[np.ndarray]) -> Optional[np.ndarray]:
     """Overlay a live 2D pose skeleton on a webcam RGB frame.
 
     Returns the original frame on errors / no-pose so the preview never goes
-    blank. Designed to be fast (no matplotlib, no 3D plot) so the stream
-    can run at ~30 FPS.
+    blank. Designed to be fast: downscale to ~480 px before inference + draw,
+    no matplotlib, no 3D plot. Real-world FPS is dominated by the websocket
+    round-trip to the host (HF Space CPU ≈ 8-15 FPS, local ≈ 25-30 FPS).
     """
     if frame_rgb is None:
         return None
     try:
         import cv2
         import mediapipe as mp
+
+        # Downscale to TARGET_WIDTH preserving aspect ratio. Smaller frame =
+        # cheaper MediaPipe inference *and* much cheaper PNG re-encode on the
+        # way back to the browser (the dominant cost on remote hosts).
+        h0, w0 = frame_rgb.shape[:2]
+        if w0 > _TARGET_WIDTH:
+            scale = _TARGET_WIDTH / float(w0)
+            new_size = (_TARGET_WIDTH, int(h0 * scale))
+            frame_rgb = cv2.resize(frame_rgb, new_size, interpolation=cv2.INTER_AREA)
+
         landmarker = _ensure_live_landmarker()
         mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame_rgb)
         result = landmarker.detect_for_video(
@@ -213,41 +227,66 @@ def build_a16_tab(gr):
     without re-implementing the layout.
     """
     with gr.TabItem("A16 Final Endpoint"):
+        # Hide the raw webcam input element so only the skeleton-overlay
+        # output is visible — gives the appearance of a single window with
+        # the skeleton drawn on top of the live camera feed.
+        gr.HTML(
+            """
+            <style>
+              .a16-hidden-input { display: none !important; }
+              .a16-live-overlay { max-width: 720px; margin: 0 auto; }
+              .a16-live-overlay img { width: 100%; height: auto; }
+            </style>
+            """
+        )
         gr.Markdown(
             """
             ## A16 — Final unified endpoint (3D alternative)
 
-            The webcam preview below runs a live **MediaPipe** pose overlay
-            (~30 FPS target, CPU only) so you can frame yourself before
-            recording. Upload a clip further down to run the full Part-II
-            chain: **pose → PoseNet→Kinect 2D → 2D→3D → start/stop cut →
-            ugly/good-bad → 0–4 score**. A 2D-only alternative is reserved
-            on the same response schema (see
-            `A16.service.endpoint.run_pipeline_2d`).
+            The window below shows your **live camera feed with a MediaPipe
+            skeleton drawn directly on top** — like a filter. No need to
+            start a recording: just allow camera access and the overlay
+            appears automatically. (Realistic FPS: ~25-30 locally, ~8-15
+            on the HF Space — network round-trip and PNG re-encode are the
+            bottleneck, not the pose model.)
+
+            Upload a clip further down to run the full Part-II chain:
+            **pose → PoseNet→Kinect 2D → 2D→3D → start/stop cut →
+            ugly/good-bad → 0–4 score**.
             """
         )
 
-        # ---- Live camera with skeleton overlay (headline) ------------------
-        with gr.Row():
-            a16_webcam = gr.Image(
-                sources=["webcam"],
-                streaming=True,
-                type="numpy",
-                label="Webcam (input)",
-                mirror_webcam=True,
-            )
-            a16_overlay = gr.Image(
-                type="numpy",
-                label="Live pose overlay",
-                streaming=True,
-            )
+        # ---- Live camera with skeleton overlay (single window) ------------
+        #
+        # Gradio cannot draw onto the input <video> element directly, so we
+        # use the standard trick: a streaming webcam input feeds frames to
+        # the server, the server draws the skeleton, and a streaming output
+        # Image shows the result. The raw input pane is hidden via CSS
+        # (`a16-hidden-input` class → display:none) so the user only sees
+        # one window with the skeleton drawn on top of the live feed —
+        # like a filter on the camera.
+        a16_webcam = gr.Image(
+            sources=["webcam"],
+            streaming=True,
+            type="numpy",
+            label="Webcam (input — hidden)",
+            mirror_webcam=True,
+            elem_classes=["a16-hidden-input"],
+            show_label=False,
+        )
+        a16_overlay = gr.Image(
+            type="numpy",
+            label="Live pose overlay",
+            streaming=True,
+            show_label=False,
+            elem_classes=["a16-live-overlay"],
+        )
         a16_webcam.stream(
             fn=_live_process_frame,
             inputs=[a16_webcam],
             outputs=[a16_overlay],
-            # ~30 FPS target; Gradio caps to actual network round-trip on
-            # slower hosts, which is fine — the overlay just degrades to
-            # whatever the link can do.
+            # ~30 FPS target; actual rate is dominated by the websocket
+            # round-trip (HF Space ≈ 8-15 FPS, local ≈ 25-30 FPS).
             stream_every=0.033,
             show_progress="hidden",
         )
