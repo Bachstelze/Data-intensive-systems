@@ -2,13 +2,40 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, Optional, Tuple
+
+import numpy as np
 
 from A16.service.endpoint import (
     STATUS_OK,
     STATUS_REJECTED_UGLY,
     run_pipeline_3d,
 )
+
+
+# ---------------------------------------------------------------------------
+# Live skeleton preview (webcam → MediaPipe overlay)
+#
+# Reuses the proven A14 livestream pipeline so this tab shows a real-time
+# 2D skeleton overlay the moment the user opens it. The estimator is built
+# lazily on the first frame and cached as a module-level singleton.
+# ---------------------------------------------------------------------------
+
+
+def _live_process_frame(frame_rgb: Optional[np.ndarray]) -> Optional[np.ndarray]:
+    """Run MediaPipe on a webcam RGB frame, return the annotated frame.
+
+    Returns ``None`` if no frame was supplied or the estimator could not be
+    initialised — Gradio will simply skip the update.
+    """
+    if frame_rgb is None:
+        return None
+    try:
+        from A14.livestream.gradio_app import process_frame
+    except Exception:  # pragma: no cover — defensive
+        return frame_rgb
+    annotated, _world = process_frame(frame_rgb)
+    return annotated if annotated is not None else frame_rgb
 
 
 def _format_summary(resp: Dict[str, Any]) -> str:
@@ -105,23 +132,65 @@ def build_a16_tab(gr):
             """
         )
 
-        with gr.Row():
-            with gr.Column():
-                a16_video = gr.Video(label="Upload exercise video")
-                a16_threshold = gr.Slider(
-                    minimum=0.1, maximum=0.9, value=0.6, step=0.05,
-                    label="Recording quality threshold",
+        with gr.Tabs():
+            with gr.TabItem("Run endpoint"):
+                with gr.Row():
+                    with gr.Column():
+                        a16_video = gr.Video(label="Upload exercise video")
+                        a16_threshold = gr.Slider(
+                            minimum=0.1, maximum=0.9, value=0.6, step=0.05,
+                            label="Recording quality threshold "
+                                  "(detection-rate based — 0.6 = pose "
+                                  "visible in 60% of the first 30 frames)",
+                        )
+                        a16_run = gr.Button(
+                            "Run A16 endpoint", variant="primary"
+                        )
+
+                    with gr.Column():
+                        a16_status = gr.Textbox(
+                            label="Status", interactive=False
+                        )
+                        a16_summary = gr.Markdown()
+                        a16_video_out = gr.Video(
+                            label="3D skeleton animation"
+                        )
+                        a16_json = gr.JSON(
+                            label="Full response (A16 schema)"
+                        )
+
+                a16_run.click(
+                    fn=run_a16_tab,
+                    inputs=[a16_video, a16_threshold],
+                    outputs=[
+                        a16_status, a16_summary, a16_video_out, a16_json
+                    ],
                 )
-                a16_run = gr.Button("Run A16 endpoint", variant="primary")
 
-            with gr.Column():
-                a16_status = gr.Textbox(label="Status", interactive=False)
-                a16_summary = gr.Markdown()
-                a16_video_out = gr.Video(label="3D skeleton animation")
-                a16_json = gr.JSON(label="Full response (A16 schema)")
-
-        a16_run.click(
-            fn=run_a16_tab,
-            inputs=[a16_video, a16_threshold],
-            outputs=[a16_status, a16_summary, a16_video_out, a16_json],
-        )
+            with gr.TabItem("Live skeleton (webcam)"):
+                gr.Markdown(
+                    "Real-time **MediaPipe pose overlay** on your webcam. "
+                    "Useful for framing the camera before recording an "
+                    "exercise. Stream stays at ~10 FPS to keep the CPU "
+                    "happy on the HF Space. Grant camera permission when "
+                    "the browser prompts."
+                )
+                with gr.Row():
+                    a16_webcam = gr.Image(
+                        sources=["webcam"],
+                        streaming=True,
+                        type="numpy",
+                        label="Webcam (input)",
+                    )
+                    a16_overlay = gr.Image(
+                        type="numpy",
+                        label="Live pose overlay",
+                        streaming=True,
+                    )
+                a16_webcam.stream(
+                    fn=_live_process_frame,
+                    inputs=[a16_webcam],
+                    outputs=[a16_overlay],
+                    stream_every=0.1,
+                    show_progress="hidden",
+                )

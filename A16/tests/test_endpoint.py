@@ -197,3 +197,67 @@ class TestBandMapping:
     def test_score_band_boundaries(self, score, prefix):
         from A15.inference import score_band
         assert score_band(score).startswith(prefix)
+
+
+class TestRecordingQualityGate:
+    """Regression tests for the detection-rate based UGLY gate.
+
+    The previous implementation averaged MediaPipe ``visibility`` values
+    which collapse to ~0.05 on the modern Tasks API → every real recording
+    was rejected. The new metric is the fraction of early frames in which
+    enough joints were detected. These tests pin that behaviour.
+    """
+
+    JOINTS = [
+        'nose', 'left_shoulder', 'right_shoulder',
+        'left_elbow', 'right_elbow',
+        'left_wrist', 'right_wrist',
+        'left_hip', 'right_hip',
+        'left_knee', 'right_knee',
+        'left_ankle', 'right_ankle',
+    ]
+
+    def _frame(self, *, detected: bool):
+        if detected:
+            kps = {j: {"x": 0.5, "y": 0.5, "confidence": 0.5} for j in self.JOINTS}
+        else:
+            kps = {j: {"x": 0.0, "y": 0.0, "confidence": 0.0} for j in self.JOINTS}
+        return {"keypoints": kps}
+
+    def _gate(self):
+        # Bind the unbound method so we don't need to instantiate the full
+        # pipeline (which would load every Keras model).
+        from exercise_pipeline import ExercisePipeline
+        return ExercisePipeline.assess_recording_quality
+
+    def test_all_frames_detected_returns_good(self):
+        frames = [self._frame(detected=True) for _ in range(30)]
+        label, conf = self._gate()(None, frames, threshold=0.6)
+        assert label == "GOOD"
+        assert conf == pytest.approx(1.0)
+
+    def test_no_frames_detected_returns_ugly(self):
+        frames = [self._frame(detected=False) for _ in range(30)]
+        label, conf = self._gate()(None, frames, threshold=0.6)
+        assert label == "UGLY"
+        assert conf == pytest.approx(0.0)
+
+    def test_mediapipe_tasks_low_visibility_regression(self):
+        """A pose detected on every frame but with the Tasks-API typical
+        low visibility (~0.05) must NOT be rejected — this is the exact
+        scenario that bit the OK-squat upload in production."""
+        frames = []
+        for _ in range(30):
+            kps = {
+                j: {"x": 0.5, "y": 0.5, "confidence": 0.05} for j in self.JOINTS
+            }
+            frames.append({"keypoints": kps})
+        label, conf = self._gate()(None, frames, threshold=0.6)
+        assert label == "GOOD", \
+            "Tasks-API visibility ~0.05 with full pose detected must pass"
+        assert conf >= 0.6
+
+    def test_empty_results_returns_ugly(self):
+        label, conf = self._gate()(None, [], threshold=0.6)
+        assert label == "UGLY"
+        assert conf == 0.0

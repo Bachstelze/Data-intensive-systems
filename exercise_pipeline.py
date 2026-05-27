@@ -264,6 +264,23 @@ class ExercisePipeline:
 
     def assess_recording_quality(self, pose_results,
                                 threshold=0.6, n_frames=30):
+        """Decide whether the recording is usable.
+
+        The legacy implementation averaged ``landmark.visibility`` over the
+        first ``n_frames``. With the modern MediaPipe Tasks API
+        (``pose_landmarker_lite.task``) that field is on a very different
+        scale (typically ~0.05 even for a clear, well-lit pose), which made
+        every recording register as UGLY at the default threshold of 0.6.
+
+        New metric — **per-frame detection rate**:
+
+        * For each early frame, count how many of the required joints have
+          non-zero coords *and* non-zero visibility. If at least 60% of the
+          joints are present, the frame is counted as "detected".
+        * The recording quality is the fraction of detected frames in the
+          early window. This is on a clean [0, 1] scale that works with the
+          existing 0.6 default threshold.
+        """
         JOINTS_TO_CHECK = [
             'nose', 'left_shoulder', 'right_shoulder',
             'left_elbow', 'right_elbow',
@@ -273,22 +290,33 @@ class ExercisePipeline:
             'left_ankle', 'right_ankle'
         ]
 
-        early_frames  = pose_results[:n_frames]
-        frame_scores  = []
-
-        for result in early_frames:
-            kps   = result['keypoints']
-            confs = [kps[j]['confidence']
-                    for j in JOINTS_TO_CHECK if j in kps]
-            if confs:
-                frame_scores.append(np.mean(confs))
-
-        if not frame_scores:
+        early_frames = pose_results[:n_frames]
+        if not early_frames:
             return 'UGLY', 0.0
 
-        avg_conf = float(np.mean(frame_scores))
-        label    = 'GOOD' if avg_conf >= threshold else 'UGLY'
-        return label, avg_conf
+        joints_needed_per_frame = max(1, int(0.6 * len(JOINTS_TO_CHECK)))
+        detected_frames = 0
+
+        for result in early_frames:
+            kps = result.get('keypoints', {})
+            joints_present = 0
+            for j in JOINTS_TO_CHECK:
+                kp = kps.get(j)
+                if not kp:
+                    continue
+                # A joint is "present" when MediaPipe produced a non-degenerate
+                # coordinate. visibility on the Tasks API is unreliable so we
+                # treat any non-zero coord as a positive signal; visibility
+                # only adds to the score when it is meaningfully > 0.
+                if (kp.get('x', 0.0) != 0.0 or kp.get('y', 0.0) != 0.0) \
+                        and kp.get('confidence', 0.0) > 1e-3:
+                    joints_present += 1
+            if joints_present >= joints_needed_per_frame:
+                detected_frames += 1
+
+        detection_rate = detected_frames / float(len(early_frames))
+        label = 'GOOD' if detection_rate >= threshold else 'UGLY'
+        return label, float(detection_rate)
 
     def _prepare_quality_input(self, df_cut):
         # Sample 10 equidistant frame indices
