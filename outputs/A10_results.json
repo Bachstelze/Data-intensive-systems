@@ -1,0 +1,13 @@
+{
+  "video": "A10.avi",
+  "total_frames": 257,
+  "start_frame": 45,
+  "stop_frame": 236,
+  "exercise_frames": 192,
+  "exercise_duration_sec": 6.4,
+  "quality_label": "GOOD",
+  "quality_confidence": 0.974,
+  "recording_quality": "GOOD",
+  "recording_confidence": 1.0,
+  "pipeline_version": "A8-A13 finsihed"
+}

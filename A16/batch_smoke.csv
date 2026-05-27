@@ -1,0 +1,6 @@
+clip,status,message,rec_label,rec_conf,class_label,class_conf,score,band,start,stop,wall_ms,error
+A1,OK,,GOOD,1.0,GOOD,0.95,4.0,RED — poor form (2-4),144,214,70958.6,
+A10,OK,,GOOD,1.0,GOOD,0.974,4.0,RED — poor form (2-4),45,236,33635.2,
+A100,OK,,GOOD,1.0,GOOD,0.867,1.8291,AMBER — borderline (1-2),1,171,29184.5,
+A101,OK,,GOOD,1.0,GOOD,0.919,1.9413,AMBER — borderline (1-2),1,215,35895.9,
+A102,OK,,GOOD,1.0,GOOD,0.823,1.9921,AMBER — borderline (1-2),1,187,31454.9,
