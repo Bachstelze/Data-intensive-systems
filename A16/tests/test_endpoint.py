@@ -225,20 +225,20 @@ class TestRecordingQualityGate:
         return {"keypoints": kps}
 
     def _gate(self):
-        # Bind the unbound method so we don't need to instantiate the full
-        # pipeline (which would load every Keras model).
-        from exercise_pipeline import ExercisePipeline
-        return ExercisePipeline.assess_recording_quality
+        # Import the pure module so CI doesn't need cv2 / TensorFlow /
+        # MediaPipe just to exercise the gate logic.
+        from recording_quality import assess_recording_quality
+        return assess_recording_quality
 
     def test_all_frames_detected_returns_good(self):
         frames = [self._frame(detected=True) for _ in range(30)]
-        label, conf = self._gate()(None, frames, threshold=0.6)
+        label, conf = self._gate()(frames, threshold=0.6)
         assert label == "GOOD"
         assert conf == pytest.approx(1.0)
 
     def test_no_frames_detected_returns_ugly(self):
         frames = [self._frame(detected=False) for _ in range(30)]
-        label, conf = self._gate()(None, frames, threshold=0.6)
+        label, conf = self._gate()(frames, threshold=0.6)
         assert label == "UGLY"
         assert conf == pytest.approx(0.0)
 
@@ -252,12 +252,12 @@ class TestRecordingQualityGate:
                 j: {"x": 0.5, "y": 0.5, "confidence": 0.05} for j in self.JOINTS
             }
             frames.append({"keypoints": kps})
-        label, conf = self._gate()(None, frames, threshold=0.6)
+        label, conf = self._gate()(frames, threshold=0.6)
         assert label == "GOOD", \
             "Tasks-API visibility ~0.05 with full pose detected must pass"
         assert conf >= 0.6
 
     def test_empty_results_returns_ugly(self):
-        label, conf = self._gate()(None, [], threshold=0.6)
+        label, conf = self._gate()([], threshold=0.6)
         assert label == "UGLY"
         assert conf == 0.0
