@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, Optional, Tuple
 
 from A16.service.endpoint import (
     STATUS_OK,
@@ -77,14 +77,29 @@ def _status_badge(resp: Dict[str, Any]) -> str:
 
 
 def run_a16_tab(
-    video_path: str,
+    video_path: Optional[str],
+    file_path: Optional[str],
     quality_threshold: float,
 ) -> Tuple[str, str, Any, Dict[str, Any]]:
     """Gradio callback for the A16 tab.
 
+    Accepts a webcam-recorded clip (``video_path``) OR a generic file upload
+    (``file_path``) — useful for formats the ``gr.Video`` widget filters out
+    in the browser file picker, such as ``.avi``. The first non-empty input
+    wins.
+
     Returns ``(status_text, summary_markdown, skeleton_video, full_json)``.
     """
-    resp = run_pipeline_3d(video_path, quality_threshold=quality_threshold)
+    chosen = video_path or file_path
+    if not chosen:
+        return (
+            "ERROR — no video provided",
+            "Please record a clip or upload a video file before running.",
+            None,
+            {"status": "ERROR_NO_VIDEO",
+             "message": "No video input provided."},
+        )
+    resp = run_pipeline_3d(chosen, quality_threshold=quality_threshold)
     skeleton_video = resp["artefacts"].get("skeleton_mp4")
     return _status_badge(resp), _format_summary(resp), skeleton_video, resp
 
@@ -115,8 +130,16 @@ def build_a16_tab(gr):
         with gr.Row():
             with gr.Column():
                 a16_video = gr.Video(
-                    label="Record or upload exercise video",
+                    label="Record or upload (mp4/mov/webm)",
                     sources=["webcam", "upload"],
+                )
+                a16_file = gr.File(
+                    label="… or upload any video file (incl. .avi)",
+                    file_types=[
+                        ".avi", ".mp4", ".mov", ".webm",
+                        ".mkv", ".m4v", "video",
+                    ],
+                    type="filepath",
                 )
                 a16_threshold = gr.Slider(
                     minimum=0.1, maximum=0.9, value=0.6, step=0.05,
@@ -140,6 +163,6 @@ def build_a16_tab(gr):
 
         a16_run.click(
             fn=run_a16_tab,
-            inputs=[a16_video, a16_threshold],
+            inputs=[a16_video, a16_file, a16_threshold],
             outputs=[a16_status, a16_summary, a16_video_out, a16_json],
         )

@@ -25,3 +25,6 @@ venv/pose_outputs/
 *.mp4
 *.mov
 *.avi
+
+# A16 — local-only labeled clips used by the batch evaluator. Never push.
+A16/all_videos/
