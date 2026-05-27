@@ -4,6 +4,7 @@ from A8.pose_estimator import MoveNetPoseEstimator
 from A12.pose_interpolator import smooth_pose_sequence
 #http://127.0.0.1:7860from A12.service.ui import run_a12_tab
 from A12.service.ui import run_a12_video_tab
+from A16.service.ui import build_a16_tab
 from exercise_pipeline import ExercisePipeline
 import json
 import csv
@@ -750,6 +751,9 @@ with gr.Blocks(title="MoveNet Pose Estimation") as demo:
                 inputs=[a15_input_video, a15_threshold],
                 outputs=[a15_band, a15_score, a15_timing, a15_json],
             )
+
+        # A16 Final unified endpoint (capstone)
+        build_a16_tab(gr)
 
 
     # Example section

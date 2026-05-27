@@ -61,7 +61,7 @@ jobs:
       # -------------------------
       - name: Run unit tests
         run: |
-          pytest A4/ -v --tb=short
+          pytest A4/ A16/ -v --tb=short
 
       # -------------------------
       # 7. Push to HuggingFace

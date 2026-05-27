@@ -37,4 +37,4 @@ Outputs:
         )
 
     except Exception as e:
-        return None, None, None, {"error": str(e)}, f"### Error\n{e}"
+        return None, None, {"error": str(e)}, f"### Error\n{e}"
