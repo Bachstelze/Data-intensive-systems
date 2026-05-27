@@ -554,8 +554,14 @@ class ExercisePipeline:
 
         print("\nStage 1-3: Extracting 3D skeleton from video...")
         cap = cv2.VideoCapture(str(video_path))
-        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        print(f"  Total frames: {total_frames}")
+        # cv2 returns INT64_MIN for containers without a frame-count header
+        # (e.g. webm from Gradio's MediaRecorder), so sanitise before display.
+        raw_total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        total_frames = raw_total if raw_total > 0 else 0
+        if total_frames > 0:
+            print(f"  Total frames: {total_frames}")
+        else:
+            print("  Total frames: unknown (will read until EOF)")
 
         all_3d = []
         frame_idx = 0
@@ -630,7 +636,10 @@ class ExercisePipeline:
             frame_idx += 1
 
             if frame_idx % 30 == 0:
-                print(f"  Processed {frame_idx}/{total_frames} frames...")
+                if total_frames > 0:
+                    print(f"  Processed {frame_idx}/{total_frames} frames...")
+                else:
+                    print(f"  Processed {frame_idx} frames...")
 
         cap.release()
         print(f"  Done. Extracted {frame_idx} frames.")
@@ -699,10 +708,13 @@ class ExercisePipeline:
         try:
             from generate_skeleton_animation import render_skeleton_video
             skeleton_out = out_dir / f"{stem}_skeleton.mp4"
+            # Lower dpi (72 vs default 100) ~halves matplotlib render time
+            # — the dominant cost of this stage on CPU.
             render_skeleton_video(
                 csv_path=str(cut_csv),
                 output_path=str(skeleton_out),
-                fps=30
+                fps=30,
+                dpi=72,
             )
             print(f"  Skeleton animation: {skeleton_out.name}")
         except Exception as e:
