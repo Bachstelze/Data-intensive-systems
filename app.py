@@ -6,6 +6,14 @@ from A12.pose_interpolator import smooth_pose_sequence
 from A12.service.ui import run_a12_video_tab
 from A16.service.ui import build_a16_tab
 from exercise_pipeline import ExercisePipeline
+
+# --- A14 livestream MediaPipe Pose (lazy-loaded landmarker) ---------------
+from A14.livestream.gradio_app import process_frame as mediapipe_process_frame
+from A14.livestream.gradio_app import _get_landmarker
+
+
+# Eagerly load the MediaPipe PoseLandmarker so the first frame isn't slow.
+_ = _get_landmarker()
 import json
 import csv
 import os
@@ -696,7 +704,7 @@ with gr.Blocks(title="MoveNet Pose Estimation") as demo:
                     with gr.Row():
                         a14_rec_status = gr.Textbox(label="Recording Status", interactive=False)
                         a14_exercise_quality = gr.Label(label="Exercise quality")
-                    
+
                     a14_3d_output = gr.Video(label="3D Skeleton Animation")
                     a14_json_output = gr.JSON(label="Full Metadata")
 
@@ -705,9 +713,9 @@ with gr.Blocks(title="MoveNet Pose Estimation") as demo:
                 fn=run_a14_pipeline,
                 inputs=[a14_input_video, a14_threshold],
                 outputs=[
-                    a14_3d_output, 
-                    a14_rec_status, 
-                    a14_exercise_quality, 
+                    a14_3d_output,
+                    a14_rec_status,
+                    a14_exercise_quality,
                     a14_json_output
                 ]
             )
@@ -755,6 +763,38 @@ with gr.Blocks(title="MoveNet Pose Estimation") as demo:
         # A16 Final unified endpoint (capstone)
         build_a16_tab(gr)
 
+        # A14 MediaPipe 3D Pose Livestream (webcam)
+        with gr.TabItem("📷 Live Pose (MediaPipe)"):
+            gr.Markdown(
+                "# MediaPipe 3D Pose Livestream\n"
+                "Live webcam pose estimation using **MediaPipe Tasks** "
+                "(`pose_landmarker_lite.task`). The left panel shows the 2D "
+                "skeleton overlay; the right panel shows the 3D world landmarks."
+            )
+
+            with gr.Row():
+                webcam = gr.Image(
+                    sources=["webcam"],
+                    streaming=True,
+                    type="numpy",
+                    label="Webcam (input)",
+                )
+
+            with gr.Row():
+                out_2d = gr.Image(
+                    type="numpy", label="2D pose overlay", streaming=True
+                )
+                out_3d = gr.Image(
+                    type="numpy", label="3D world landmarks", streaming=True
+                )
+
+            webcam.stream(
+                fn=mediapipe_process_frame,
+                inputs=[webcam],
+                outputs=[out_2d, out_3d],
+                stream_every=0.1,
+                show_progress="hidden",
+            )
 
     # Example section
     with gr.Accordion("ℹ️ Information", open=False):
